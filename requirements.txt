@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+python-dotenv
+pydantic
+groq
+playwright
+axe-playwright-python
+pytest
