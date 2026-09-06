@@ -1,0 +1,68 @@
+"""
+Page Scanner
+============
+Opens a page in Chromium and runs axe on what the browser rendered.
+This only reads the page, nothing on the site gets changed.
+
+Dependencies:
+    - playwright
+    - axe-playwright-python
+"""
+
+from axe_playwright_python.sync_playwright import Axe
+from playwright.sync_api import Browser
+
+from app.models import AxeIssue, PageScan
+
+
+# ── Rules We Care About ──
+
+# axe rule -> the label we use in the logs
+TARGET_RULES = {
+    "select-name": "missing_label",
+    "label": "missing_label",
+    "listitem": "role_context",
+    "aria-required-parent": "role_context",
+    "frame-title": "iframe_title",
+}
+
+
+# ── Scanning ──
+
+def scan_page(browser: Browser, url: str) -> PageScan:
+    """
+    Scan one page and keep only the rules in TARGET_RULES.
+
+    Returns:
+    --------
+    PageScan with one AxeIssue per flagged element
+    """
+    page = browser.new_page()
+    try:
+        page.goto(url, wait_until="load", timeout=60_000)
+        # give any late scripts a second to finish building the page
+        page.wait_for_timeout(1_000)
+        results = Axe().run(page).response
+
+        # axe puts results it isn't sure about in "incomplete", so keep those too
+        groups = [("violation", results["violations"]), ("needs_review", results["incomplete"])]
+
+        issues = []
+        for status, findings in groups:
+            for finding in findings:
+                if finding["id"] not in TARGET_RULES:
+                    continue
+                for node in finding["nodes"]:
+                    issues.append(
+                        AxeIssue(
+                            rule_id=finding["id"],
+                            status=status,
+                            impact=node.get("impact"),
+                            help=finding["help"],
+                            selector=" ".join(str(part) for part in node["target"]),
+                            html=node["html"],
+                        )
+                    )
+        return PageScan(url=url, final_url=page.url, issues=issues)
+    finally:
+        page.close()
