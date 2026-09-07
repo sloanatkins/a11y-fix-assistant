@@ -18,10 +18,7 @@ BROKEN_PAGE = """<!doctype html><html lang="en"><head><title>Test</title></head>
   <input type="text">
   <iframe src="about:blank"></iframe>
   <div role="listitem">Not inside a list</div>
-  <table>
-    <thead><tr><th>Name</th><th>Unused</th></tr></thead>
-    <tbody><tr><td>Sloan</td></tr></tbody>
-  </table>
+  <ul class="pagination" role="navigation" aria-label="Pagination"><li>1</li></ul>
 </main></body></html>"""
 
 
@@ -35,4 +32,8 @@ def test_scanner_finds_planted_issues(tmp_path):
         browser.close()
 
     found = {issue.rule_id for issue in scan.issues}
-    assert {"label", "frame-title", "aria-required-parent"} <= found
+    assert {"label", "frame-title", "aria-required-parent", "listitem"} <= found
+
+    # the parent tag is what makes the pagination fix possible
+    listitem = next(i for i in scan.issues if i.rule_id == "listitem")
+    assert 'role="navigation"' in listitem.parent_html

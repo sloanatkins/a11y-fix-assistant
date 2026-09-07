@@ -7,6 +7,8 @@ Dependencies:
     - pydantic
 """
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -19,9 +21,20 @@ class AxeIssue(BaseModel):
     help: str
     selector: str
     html: str
+    parent_html: str = ""
 
 
 class PageScan(BaseModel):
     url: str
     final_url: str
     issues: list[AxeIssue]
+
+
+# ── Fix Suggestions ──
+
+class FixSuggestion(BaseModel):
+    explanation: str
+    fix_target: Literal["element", "parent"]
+    fixed_html: str
+    needs_human_input: bool
+    human_input_reason: str

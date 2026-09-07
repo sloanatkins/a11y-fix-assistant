@@ -10,7 +10,7 @@ Dependencies:
 """
 
 from axe_playwright_python.sync_playwright import Axe
-from playwright.sync_api import Browser
+from playwright.sync_api import Browser, Page
 
 from app.models import AxeIssue, PageScan
 
@@ -25,6 +25,29 @@ TARGET_RULES = {
     "aria-required-parent": "role_context",
     "frame-title": "iframe_title",
 }
+
+
+# ── Page Context ──
+
+def get_parent_tag(page: Page, target: list) -> str:
+    """
+    Grab just the opening tag of the flagged element's parent.
+    Some issues, like listitem, are really caused by the parent.
+
+    Returns:
+    --------
+    Parent's opening tag, or an empty string if we can't find it
+    """
+    # nested targets mean iframes or shadow DOM, skip those for now
+    if len(target) != 1 or not isinstance(target[0], str):
+        return ""
+    return page.evaluate(
+        """(selector) => {
+            const parent = document.querySelector(selector)?.parentElement;
+            return parent ? parent.cloneNode(false).outerHTML : "";
+        }""",
+        target[0],
+    )
 
 
 # ── Scanning ──
@@ -61,6 +84,7 @@ def scan_page(browser: Browser, url: str) -> PageScan:
                             help=finding["help"],
                             selector=" ".join(str(part) for part in node["target"]),
                             html=node["html"],
+                            parent_html=get_parent_tag(page, node["target"]),
                         )
                     )
         return PageScan(url=url, final_url=page.url, issues=issues)
