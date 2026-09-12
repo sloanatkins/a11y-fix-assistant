@@ -11,7 +11,9 @@ Dependencies:
 import json
 from types import SimpleNamespace
 
+import httpx
 import pytest
+from groq import BadRequestError
 from pydantic import ValidationError
 
 from app.models import AxeIssue
@@ -92,3 +94,24 @@ def test_iframe_title_always_needs_a_person():
         human_input_reason="",
     )
     assert apply_guards(ISSUE, guessed).needs_human_input is True
+
+
+def test_bad_generation_gets_one_retry():
+    client = FakeClient(json.dumps({
+        "explanation": "No name.",
+        "fix_target": "element",
+        "fixed_html": "<iframe></iframe>",
+        "needs_human_input": True,
+        "human_input_reason": "Need a title.",
+    }))
+    working_create = client.chat.completions.create
+    response = httpx.Response(400, request=httpx.Request("POST", "https://groq.test"))
+    failures = [BadRequestError("bad json", response=response, body=None)]
+
+    def flaky_create(**kwargs):
+        if failures:
+            raise failures.pop()
+        return working_create(**kwargs)
+
+    client.chat.completions.create = flaky_create
+    assert suggest_fix(ISSUE, client=client).explanation == "No name."

@@ -12,7 +12,7 @@ Dependencies:
 import json
 from pathlib import Path
 
-from groq import Groq
+from groq import BadRequestError, Groq
 
 from app.config import GROQ_API_KEY, GROQ_MODEL
 from app.models import AxeIssue, FixSuggestion
@@ -97,22 +97,29 @@ def suggest_fix(issue: AxeIssue, client: Groq | None = None) -> FixSuggestion:
         "</issue>"
     )
 
-    response = client.chat.completions.create(
-        model=GROQ_MODEL,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": PROMPT_PATH.read_text()},
-            {"role": "user", "content": issue_text},
-        ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "fix_suggestion",
-                "strict": True,
-                "schema": FIX_SCHEMA,
-            },
-        },
-    )
+    # strict mode sometimes rejects a bad generation, so give it one more try
+    for attempt in range(2):
+        try:
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                temperature=0,
+                messages=[
+                    {"role": "system", "content": PROMPT_PATH.read_text()},
+                    {"role": "user", "content": issue_text},
+                ],
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "fix_suggestion",
+                        "strict": True,
+                        "schema": FIX_SCHEMA,
+                    },
+                },
+            )
+            break
+        except BadRequestError:
+            if attempt == 1:
+                raise
 
     data = json.loads(response.choices[0].message.content)
     return apply_guards(issue, FixSuggestion.model_validate(data))

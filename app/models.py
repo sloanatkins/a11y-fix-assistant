@@ -20,6 +20,7 @@ class AxeIssue(BaseModel):
     impact: str | None
     help: str
     selector: str
+    target: list = []  # axe's raw path, needed for shadow DOM
     html: str
     parent_html: str = ""
 
@@ -38,3 +39,15 @@ class FixSuggestion(BaseModel):
     fixed_html: str
     needs_human_input: bool
     human_input_reason: str
+
+
+# ── Validation Results ──
+
+class ValidationResult(BaseModel):
+    verdict: Literal["passed", "needs_review", "failed", "not_applied"]
+    applied: bool
+    detail: str
+    rule_before: int
+    rule_after: int
+    new_violations: dict[str, int]
+    has_placeholder: bool

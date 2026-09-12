@@ -83,6 +83,7 @@ def scan_page(browser: Browser, url: str) -> PageScan:
                             impact=node.get("impact"),
                             help=finding["help"],
                             selector=" ".join(str(part) for part in node["target"]),
+                            target=node["target"],
                             html=node["html"],
                             parent_html=get_parent_tag(page, node["target"]),
                         )

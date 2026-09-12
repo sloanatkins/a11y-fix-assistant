@@ -1,0 +1,117 @@
+"""
+Validator Tests
+===============
+Runs fixes against a small local page, so no network or Groq needed.
+
+Dependencies:
+    - pytest
+    - playwright
+"""
+
+import pytest
+from playwright.sync_api import sync_playwright
+
+from app.models import AxeIssue, FixSuggestion
+from app.scanner import scan_page
+from app.validator import validate_fix
+
+TEST_PAGE = """<!doctype html><html lang="en"><head><title>Test</title></head><body>
+<main>
+  <h1>Test page</h1>
+  <select id="subject"><option>Finance</option><option>Marketing</option></select>
+  <ul class="pagination" role="navigation" aria-label="Pagination">
+    <li class="current">1</li><li><a href="#2">2</a></li>
+  </ul>
+  <iframe src="about:blank"></iframe>
+  <div id="host"></div>
+</main>
+<script>
+  const shadow = document.getElementById("host").attachShadow({ mode: "open" });
+  shadow.innerHTML = '<iframe id="popup" src="about:blank"></iframe>';
+</script>
+</body></html>"""
+
+
+@pytest.fixture
+def scan_env(tmp_path):
+    page_file = tmp_path / "test.html"
+    page_file.write_text(TEST_PAGE)
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        yield browser, page_file.as_uri()
+        browser.close()
+
+
+def fix(html: str, target: str = "element", needs_person: bool = False) -> FixSuggestion:
+    return FixSuggestion(
+        explanation="test",
+        fix_target=target,
+        fixed_html=html,
+        needs_human_input=needs_person,
+        human_input_reason="check it" if needs_person else "",
+    )
+
+
+def find_issue(browser, url: str, rule_id: str) -> AxeIssue:
+    return next(i for i in scan_page(browser, url).issues if i.rule_id == rule_id)
+
+
+def test_opening_tag_fix_passes_and_keeps_options(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "select-name")
+    result = validate_fix(browser, url, issue, fix('<select id="subject" aria-label="Subject">'))
+    assert result.verdict == "passed"
+    assert result.rule_after == 0
+
+
+def test_parent_fix_clears_every_list_item(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "listitem")
+    fixed = '<nav aria-label="Pagination"><ul class="pagination">...</ul></nav>'
+    result = validate_fix(browser, url, issue, fix(fixed, target="parent"))
+    assert result.verdict == "passed"
+    assert (result.rule_before, result.rule_after) == (2, 0)
+
+
+def test_placeholder_goes_to_review(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "frame-title")
+    fixed = '<iframe src="about:blank" title="[DESCRIBE THE CONTENT]"></iframe>'
+    result = validate_fix(browser, url, issue, fix(fixed, needs_person=True))
+    assert result.verdict == "needs_review"
+    assert result.has_placeholder is True
+
+
+def test_shadow_dom_iframe_can_be_fixed(scan_env):
+    browser, url = scan_env
+    issues = [i for i in scan_page(browser, url).issues if i.rule_id == "frame-title"]
+    issue = next(i for i in issues if isinstance(i.target[0], list))
+    fixed = '<iframe id="popup" src="about:blank" title="[DESCRIBE THE POPUP]"></iframe>'
+    result = validate_fix(browser, url, issue, fix(fixed, needs_person=True))
+    assert result.applied is True
+    assert result.rule_after == result.rule_before - 1
+
+
+def test_fix_that_changes_nothing_fails(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "select-name")
+    result = validate_fix(browser, url, issue, fix('<select id="subject">'))
+    assert result.verdict == "failed"
+
+
+def test_stale_path_is_found_again_by_html(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "select-name").model_copy(
+        update={"target": ["#old-spot"]}
+    )
+    result = validate_fix(browser, url, issue, fix('<select id="subject" aria-label="Subject">'))
+    assert result.verdict == "passed"
+
+
+def test_missing_element_is_not_applied(scan_env):
+    browser, url = scan_env
+    issue = find_issue(browser, url, "select-name").model_copy(
+        update={"target": ["#does-not-exist"], "html": "<select id=\"gone\">"}
+    )
+    result = validate_fix(browser, url, issue, fix("<select>"))
+    assert result.verdict == "not_applied"
