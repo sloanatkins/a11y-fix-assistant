@@ -31,7 +31,8 @@ def main() -> None:
     samples = {}
     for scan in scans:
         for raw in scan["issues"]:
-            if raw["status"] == "violation":
+            # report only rules don't get a suggested fix yet
+            if raw["status"] == "violation" and raw["level"] != "report_only":
                 samples.setdefault(raw["rule_id"], (scan["url"], AxeIssue(**raw)))
 
     print(f"Model: {GROQ_MODEL}")

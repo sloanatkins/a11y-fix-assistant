@@ -16,6 +16,7 @@ from pydantic import BaseModel
 
 class AxeIssue(BaseModel):
     rule_id: str
+    level: str = "report_only"  # tested, suggested, or report_only
     status: str  # "violation" or "needs_review"
     impact: str | None
     help: str
