@@ -9,7 +9,7 @@ Dependencies:
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # ── Scan Results ──
@@ -52,3 +52,65 @@ class ValidationResult(BaseModel):
     rule_after: int
     new_violations: dict[str, int]
     has_placeholder: bool
+
+
+# ── API Models ──
+
+class IssueGroup(BaseModel):
+    key: str
+    rule_id: str
+    level: str
+    status: str
+    impact: str | None
+    help: str
+    count: int
+    example: AxeIssue
+
+
+class ScanRequest(BaseModel):
+    url: str
+
+
+class ScanResponse(BaseModel):
+    id: int
+    url: str
+    status: Literal["running", "complete", "failed"]
+    final_url: str | None = None
+    error: str | None = None
+    groups: list[IssueGroup] = []
+
+
+class SuggestionResponse(BaseModel):
+    id: int
+    scan_id: int
+    group_key: str
+    model: str
+    suggestion: FixSuggestion
+    validation: ValidationResult
+
+
+class DecisionRequest(BaseModel):
+    decision: Literal["used", "edited", "rejected"]
+    final_html: str | None = None
+    reason: str | None = None
+    seconds_spent: float | None = Field(default=None, ge=0)
+
+
+class DecisionResponse(DecisionRequest):
+    id: int
+    suggestion_id: int
+
+
+class RuleSummary(BaseModel):
+    rule_id: str
+    suggestions: int
+    verdicts: dict[str, int]
+    decisions: dict[str, int]
+    occurrences_in_groups: int
+
+
+class EvaluationResponse(BaseModel):
+    scans: int
+    suggestions: int
+    decisions: int
+    rules: list[RuleSummary]
