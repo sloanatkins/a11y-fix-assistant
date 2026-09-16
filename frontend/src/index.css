@@ -1,0 +1,54 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2933;
+  background: #f7f8fa;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+header p {
+  margin: 0 0 32px;
+  color: #52606d;
+  font-size: 16px;
+}
+
+form {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  font-weight: 700;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #7b8794;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+button {
+  justify-self: start;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 6px;
+  background: #1f4e79;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
