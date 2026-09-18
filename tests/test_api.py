@@ -209,3 +209,14 @@ def test_real_scan_runs_from_the_background_task(tmp_path, monkeypatch):
     assert scan["status"] == "complete"
     group = next(g for g in scan["groups"] if g["rule_id"] == "listitem")
     assert group["count"] == 2
+
+
+def test_reviews_show_saved_decisions(client, monkeypatch):
+    fake_suggestion(monkeypatch)
+    scan = start_scan(client)
+    key = scan["groups"][0]["key"]
+    suggestion_id = client.post(f"/api/scans/{scan['id']}/groups/{key}/suggestion").json()["id"]
+    client.post(f"/api/suggestions/{suggestion_id}/decision", json={"decision": "edited"})
+
+    reviews = client.get(f"/api/scans/{scan['id']}/reviews").json()
+    assert reviews == [{"group_key": key, "suggestion_id": suggestion_id, "decision": "edited"}]

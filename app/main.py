@@ -30,6 +30,7 @@ from app.models import (
     EvaluationResponse,
     FixSuggestion,
     PageScan,
+    ReviewStatus,
     RuleSummary,
     ScanRequest,
     ScanResponse,
@@ -111,6 +112,11 @@ def get_scan(scan_id: int) -> ScanResponse:
     if scan is None:
         raise HTTPException(status_code=404, detail="Scan not found")
     return scan
+
+
+@app.get("/api/scans/{scan_id}/reviews", response_model=list[ReviewStatus])
+def get_reviews(scan_id: int) -> list[ReviewStatus]:
+    return db.get_review_statuses(scan_id)
 
 
 # ── Suggestion Routes ──

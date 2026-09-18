@@ -101,6 +101,12 @@ class DecisionResponse(DecisionRequest):
     suggestion_id: int
 
 
+class ReviewStatus(BaseModel):
+    group_key: str
+    suggestion_id: int
+    decision: str | None
+
+
 class RuleSummary(BaseModel):
     rule_id: str
     suggestions: int

@@ -19,6 +19,7 @@ from app.models import (
     DecisionResponse,
     FixSuggestion,
     IssueGroup,
+    ReviewStatus,
     ScanResponse,
     SuggestionResponse,
     ValidationResult,
@@ -211,6 +212,20 @@ def save_decision(suggestion_id: int, decision: DecisionRequest) -> DecisionResp
         reason=row["reason"],
         seconds_spent=row["seconds_spent"],
     )
+
+
+def get_review_statuses(scan_id: int) -> list[ReviewStatus]:
+    """Lets the results screen show which groups I've already looked at."""
+    with connect() as db:
+        rows = db.execute(
+            "SELECT s.id, s.group_key, d.decision FROM suggestions s "
+            "LEFT JOIN decisions d ON d.suggestion_id = s.id WHERE s.scan_id = ?",
+            (scan_id,),
+        ).fetchall()
+    return [
+        ReviewStatus(group_key=r["group_key"], suggestion_id=r["id"], decision=r["decision"])
+        for r in rows
+    ]
 
 
 # ── Evaluation ──
