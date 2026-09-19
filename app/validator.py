@@ -41,6 +41,15 @@ APPLY_FIX_JS = """
     const node = fixTarget === "parent" ? element.parentElement : element;
     if (!node) return "Flagged element has no parent";
 
+    // a template can't hold an html tag, so just copy its attributes across
+    if (node === document.documentElement) {
+        const parsed = new DOMParser().parseFromString(fixedHtml, "text/html").documentElement;
+        for (const attribute of parsed.attributes) {
+            node.setAttribute(attribute.name, attribute.value);
+        }
+        return "applied";
+    }
+
     const template = document.createElement("template");
     template.innerHTML = fixedHtml;
     const root = template.content.firstElementChild;
@@ -178,7 +187,7 @@ def validate_fix(
             detail = suggestion.human_input_reason or "Fix still has a placeholder"
         else:
             verdict = "passed"
-            detail = "axe checks passed, wording still needs my review"
+            detail = "axe checks passed, but the wording still needs your review"
 
         return ValidationResult(
             verdict=verdict,

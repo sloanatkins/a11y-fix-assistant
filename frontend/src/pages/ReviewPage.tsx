@@ -4,8 +4,9 @@ import { getReviews, getScan, getSuggestion } from "../api";
 import type { Decision, IssueGroup, Suggestion } from "../api";
 import CodeBlock from "../components/CodeBlock";
 import DecisionForm from "../components/DecisionForm";
+import IssueClues from "../components/IssueClues";
 import LevelBadge from "../components/LevelBadge";
-import { VERDICT_LABELS } from "../labels";
+import { getRuleTip, VERDICT_LABELS } from "../labels";
 
 function ReviewPage() {
   const { scanId = "", groupKey = "" } = useParams();
@@ -89,12 +90,14 @@ function ReviewPage() {
     );
   }
 
+  const currentHtml =
+    suggestion?.suggestion.fix_target === "parent" ? group.example.parent_html : group.example.html;
   const canSuggest = group.level !== "report_only" && group.status === "violation";
 
   return (
     <>
-      {backLink}
-      <h1>{group.rule_id}</h1>
+      <p className="back">{backLink}</p>
+      <h1 className="code-title">{group.rule_id}</h1>
       <p className="review-meta">
         <LevelBadge level={group.level} />
         <span>
@@ -108,11 +111,16 @@ function ReviewPage() {
         <CodeBlock title="Parent tag" code={group.example.parent_html} />
       )}
 
+      <IssueClues context={group.example.context ?? {}} />
+
       {!canSuggest && (
-        <p className="note">
-          The tool reports this issue but doesn&apos;t draft a fix for it yet, because its fixes
-          haven&apos;t proven reliable enough.
-        </p>
+        <section className="tip" aria-labelledby="tip-heading">
+          <h2 id="tip-heading">What to check</h2>
+          <p>{getRuleTip(group.rule_id)}</p>
+          <p className="tip-note">
+            The tool doesn&apos;t draft fixes for this rule yet, so this one is yours to decide.
+          </p>
+        </section>
       )}
 
       {canSuggest && !suggestion && (
@@ -146,19 +154,21 @@ function ReviewPage() {
                 title={
                   suggestion.suggestion.fix_target === "parent" ? "Current parent" : "Current HTML"
                 }
-                code={
-                  suggestion.suggestion.fix_target === "parent"
-                    ? group.example.parent_html
-                    : group.example.html
-                }
+                code={currentHtml}
+                compareTo={suggestion.suggestion.fixed_html}
+                changeClass="removed"
               />
-              <CodeBlock title="Suggested HTML" code={suggestion.suggestion.fixed_html} />
+              <CodeBlock
+                title="Suggested HTML"
+                code={suggestion.suggestion.fixed_html}
+                compareTo={currentHtml}
+              />
             </div>
           </section>
 
           <section aria-labelledby="test-heading">
             <h2 id="test-heading">Test result</h2>
-            <dl className="panel facts">
+            <dl className="facts">
               <div>
                 <dt>Verdict</dt>
                 <dd>
@@ -185,7 +195,7 @@ function ReviewPage() {
                 <dd>{suggestion.validation.detail}</dd>
               </div>
             </dl>
-            <p className="note">
+            <p className="caveat">
               A passing test only means axe found no problem. Check that the wording is accurate
               and the page still looks right.
             </p>

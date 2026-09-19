@@ -115,3 +115,68 @@ def test_bad_generation_gets_one_retry():
 
     client.chat.completions.create = flaky_create
     assert suggest_fix(ISSUE, client=client).explanation == "No name."
+
+
+def test_generic_label_gets_flagged():
+    vague = FixSuggestion(
+        explanation="No name.",
+        fix_target="element",
+        fixed_html='<select aria-label="Select option">',
+        needs_human_input=False,
+        human_input_reason="",
+    )
+    issue = ISSUE.model_copy(update={"rule_id": "select-name"})
+    assert apply_guards(issue, vague).needs_human_input is True
+
+
+def test_specific_label_is_left_alone():
+    clear = FixSuggestion(
+        explanation="No name.",
+        fix_target="element",
+        fixed_html='<select aria-label="Program type">',
+        needs_human_input=False,
+        human_input_reason="",
+    )
+    issue = ISSUE.model_copy(update={"rule_id": "select-name"})
+    assert apply_guards(issue, clear).needs_human_input is False
+
+
+def test_options_are_sent_to_the_model():
+    client = FakeClient(json.dumps({
+        "explanation": "x",
+        "fix_target": "element",
+        "fixed_html": "<select>",
+        "needs_human_input": False,
+        "human_input_reason": "",
+    }))
+    issue = ISSUE.model_copy(update={"rule_id": "select-name", "options": ["MBA", "Masters"]})
+    suggest_fix(issue, client=client)
+    assert "MBA, Masters" in client.calls[0]["messages"][1]["content"]
+
+
+@pytest.mark.parametrize("rule_id", ["image-alt", "link-name", "html-has-lang", "color-contrast"])
+def test_judgment_rules_always_need_a_person(rule_id):
+    sure = FixSuggestion(
+        explanation="x",
+        fix_target="element",
+        fixed_html="<x>",
+        needs_human_input=False,
+        human_input_reason="",
+    )
+    issue = ISSUE.model_copy(update={"rule_id": rule_id})
+    assert apply_guards(issue, sure).needs_human_input is True
+
+
+def test_context_is_sent_to_the_model():
+    client = FakeClient(json.dumps({
+        "explanation": "x",
+        "fix_target": "element",
+        "fixed_html": "<a>",
+        "needs_human_input": False,
+        "human_input_reason": "",
+    }))
+    issue = ISSUE.model_copy(
+        update={"rule_id": "link-name", "context": {"link_url": "https://x.test/menu"}}
+    )
+    suggest_fix(issue, client=client)
+    assert "https://x.test/menu" in client.calls[0]["messages"][1]["content"]

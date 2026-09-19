@@ -50,7 +50,7 @@ function EvaluationPage() {
           </dl>
 
           {evaluation.rules.length === 0 ? (
-            <p className="note">No suggestions yet. Review an issue to see results here.</p>
+            <p className="empty">No suggestions yet. Scan a page and get a fix to start filling this in.</p>
           ) : (
             <div className="table-wrap" tabIndex={0} role="region" aria-label="Results by rule">
               <table>
@@ -85,7 +85,7 @@ function EvaluationPage() {
               </table>
             </div>
           )}
-          <p className="note">
+          <p className="caveat">
             Occurrences count every flagged item in the reviewed groups. They don&apos;t mean those
             items were fixed on a live site.
           </p>

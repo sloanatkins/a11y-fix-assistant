@@ -14,6 +14,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from app import config
+from app.scanner import get_level
 from app.models import (
     DecisionRequest,
     DecisionResponse,
@@ -21,6 +22,7 @@ from app.models import (
     IssueGroup,
     ReviewStatus,
     ScanResponse,
+    ScanSummary,
     SuggestionResponse,
     ValidationResult,
 )
@@ -31,6 +33,7 @@ from app.models import (
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS scans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id TEXT,
     url TEXT NOT NULL,
     status TEXT NOT NULL,
     final_url TEXT,
@@ -80,6 +83,12 @@ def init_db() -> None:
     """Create the tables, and fail any scan that was cut off by a restart."""
     with connect() as db:
         db.executescript(SCHEMA)
+
+        # databases made before browser IDs won't have this column yet
+        columns = [row["name"] for row in db.execute("PRAGMA table_info(scans)")]
+        if "client_id" not in columns:
+            db.execute("ALTER TABLE scans ADD COLUMN client_id TEXT")
+
         db.execute(
             "UPDATE scans SET status = 'failed', error = 'Server restarted during scan' "
             "WHERE status = 'running'"
@@ -88,11 +97,20 @@ def init_db() -> None:
 
 # ── Scans ──
 
-def create_scan(url: str) -> int:
+def create_scan(url: str, client_id: str) -> int:
     with connect() as db:
         return db.execute(
-            "INSERT INTO scans (url, status) VALUES (?, 'running')", (url,)
+            "INSERT INTO scans (url, status, client_id) VALUES (?, 'running', ?)",
+            (url, client_id),
         ).lastrowid
+
+
+def scan_belongs_to(scan_id: int, client_id: str) -> bool:
+    with connect() as db:
+        row = db.execute(
+            "SELECT 1 FROM scans WHERE id = ? AND client_id = ?", (scan_id, client_id)
+        ).fetchone()
+    return row is not None
 
 
 def complete_scan(scan_id: int, final_url: str, groups: list[IssueGroup]) -> None:
@@ -117,14 +135,47 @@ def get_scan(scan_id: int) -> ScanResponse | None:
         row = db.execute("SELECT * FROM scans WHERE id = ?", (scan_id,)).fetchone()
     if row is None:
         return None
+    groups = [IssueGroup(**group) for group in json.loads(row["groups_json"])]
+
+    # old scans should follow the current rule levels, not the ones they were saved with
+    for group in groups:
+        group.level = get_level(group.rule_id)
+        group.example.level = group.level
+
     return ScanResponse(
         id=row["id"],
         url=row["url"],
         status=row["status"],
         final_url=row["final_url"],
         error=row["error"],
-        groups=[IssueGroup(**group) for group in json.loads(row["groups_json"])],
+        groups=groups,
     )
+
+
+def adopt_unowned_scans(client_id: str) -> None:
+    """Scans from before browser IDs go to the first browser that asks."""
+    with connect() as db:
+        db.execute("UPDATE scans SET client_id = ? WHERE client_id IS NULL", (client_id,))
+
+
+def list_scans(client_id: str, limit: int = 20) -> list[ScanSummary]:
+    """This browser's newest scans first, for the recent scans list."""
+    with connect() as db:
+        rows = db.execute(
+            "SELECT id, url, status, created_at, groups_json FROM scans "
+            "WHERE client_id = ? ORDER BY id DESC LIMIT ?",
+            (client_id, limit),
+        ).fetchall()
+    return [
+        ScanSummary(
+            id=row["id"],
+            url=row["url"],
+            status=row["status"],
+            created_at=row["created_at"],
+            flagged=sum(group["count"] for group in json.loads(row["groups_json"])),
+        )
+        for row in rows
+    ]
 
 
 # ── Suggestions ──
@@ -176,10 +227,12 @@ def save_suggestion(
 
 # ── Decisions ──
 
-def suggestion_exists(suggestion_id: int) -> bool:
+def suggestion_belongs_to(suggestion_id: int, client_id: str) -> bool:
     with connect() as db:
         row = db.execute(
-            "SELECT 1 FROM suggestions WHERE id = ?", (suggestion_id,)
+            "SELECT 1 FROM suggestions s JOIN scans c ON c.id = s.scan_id "
+            "WHERE s.id = ? AND c.client_id = ?",
+            (suggestion_id, client_id),
         ).fetchone()
     return row is not None
 
@@ -230,7 +283,7 @@ def get_review_statuses(scan_id: int) -> list[ReviewStatus]:
 
 # ── Evaluation ──
 
-def get_evaluation_rows() -> tuple[int, list[sqlite3.Row]]:
+def get_evaluation_rows(client_id: str) -> tuple[int, list[sqlite3.Row]]:
     """
     Pull what the evaluation summary needs.
 
@@ -239,9 +292,13 @@ def get_evaluation_rows() -> tuple[int, list[sqlite3.Row]]:
     Number of scans, plus one row per suggestion with its decision if it has one
     """
     with connect() as db:
-        scans = db.execute("SELECT COUNT(*) FROM scans").fetchone()[0]
+        scans = db.execute(
+            "SELECT COUNT(*) FROM scans WHERE client_id = ?", (client_id,)
+        ).fetchone()[0]
         rows = db.execute(
             "SELECT s.rule_id, s.occurrences, s.validation_json, d.decision "
-            "FROM suggestions s LEFT JOIN decisions d ON d.suggestion_id = s.id"
+            "FROM suggestions s JOIN scans c ON c.id = s.scan_id "
+            "LEFT JOIN decisions d ON d.suggestion_id = s.id WHERE c.client_id = ?",
+            (client_id,),
         ).fetchall()
     return scans, rows

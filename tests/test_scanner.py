@@ -14,9 +14,11 @@ from playwright.sync_api import sync_playwright
 from app.scanner import get_level, scan_page, validate_url
 
 BROKEN_PAGE = """<!doctype html><html lang="en"><head><title>Test</title></head><body>
+<p>Outside any landmark</p>
 <main>
   <h1>Test page</h1>
   <img src="missing.png">
+  <select id="program"><option>MBA</option><option>Masters</option></select>
   <input type="text">
   <iframe src="about:blank"></iframe>
   <div role="listitem">Not inside a list</div>
@@ -40,15 +42,19 @@ def test_scanner_finds_planted_issues(tmp_path):
     listitem = next(i for i in scan.issues if i.rule_id == "listitem")
     assert 'role="navigation"' in listitem.parent_html
 
+    dropdown = next(i for i in scan.issues if i.rule_id == "select-name")
+    assert dropdown.options == ["MBA", "Masters"]
+
     # rules outside our fix list should still be reported
-    image = next(i for i in scan.issues if i.rule_id == "image-alt")
-    assert image.level == "report_only"
+    region = next(i for i in scan.issues if i.rule_id == "region")
+    assert region.level == "report_only"
 
 
 def test_levels():
     assert get_level("listitem") == "tested"
     assert get_level("frame-title") == "suggested"
-    assert get_level("color-contrast") == "report_only"
+    assert get_level("image-alt") == "suggested"
+    assert get_level("region") == "report_only"
 
 
 @pytest.mark.parametrize(

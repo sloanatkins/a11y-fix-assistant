@@ -103,8 +103,11 @@ function ScanResultsPage() {
     return (
       <>
         <h1>Scanning page</h1>
-        <p role="status">Opening the page and running axe. This can take a little while.</p>
         {scan && <p className="url">{scan.url}</p>}
+        <div className="scan-bar" aria-hidden="true">
+          <span />
+        </div>
+        <p role="status">Opening the page and running the automated check. This can take a little while.</p>
       </>
     );
   }
@@ -122,54 +125,70 @@ function ScanResultsPage() {
   }
 
   const total = scan.groups.reduce((sum, group) => sum + group.count, 0);
+  const flaggedByLevel = (level: Level) =>
+    scan.groups
+      .filter((group) => group.level === level)
+      .reduce((sum, group) => sum + group.count, 0);
+
+  const filters: { value: LevelFilter; label: string; count: number }[] = [
+    { value: "all", label: "All issues", count: total },
+    ...LEVEL_ORDER.map((level) => ({
+      value: level,
+      label: LEVEL_LABELS[level],
+      count: flaggedByLevel(level),
+    })),
+  ];
 
   return (
     <>
       <h1>Scan results</h1>
       <p className="url">{scan.final_url}</p>
       <p className="lede">
-        axe flagged {total} {total === 1 ? "item" : "items"} across {scan.groups.length}{" "}
+        The automated check flagged {total} {total === 1 ? "item" : "items"} across {scan.groups.length}{" "}
         {scan.groups.length === 1 ? "group" : "groups"}.
       </p>
 
       {scan.groups.length === 0 && (
-        <p className="note">
-          axe found nothing, but that doesn&apos;t mean the page is fully accessible. Manual
-          testing is still needed.
+        <p className="empty">
+          The automated check found nothing here. Test the page by hand too, since it can&apos;t
+          catch every problem.
         </p>
       )}
 
       {scan.groups.length > 0 && (
-        <div className="field filter">
-          <label htmlFor="level-filter">Show</label>
-          <select
-            id="level-filter"
-            value={filter}
-            onChange={(event) => setFilter(event.target.value as LevelFilter)}
-          >
-            <option value="all">All issues</option>
-            {LEVEL_ORDER.map((level) => (
-              <option key={level} value={level}>
-                {LEVEL_LABELS[level]}
-              </option>
-            ))}
-          </select>
+        <div className="filters" role="group" aria-label="Show">
+          {filters.map((option) => (
+            <button
+              type="button"
+              key={option.value}
+              className={`filter filter-${option.value}`}
+              aria-pressed={filter === option.value}
+              onClick={() => setFilter(option.value)}
+            >
+              <span className="filter-count">{option.count}</span>
+              <span>{option.label}</span>
+            </button>
+          ))}
         </div>
       )}
 
       {rules.length === 0 && scan.groups.length > 0 && (
-        <p className="note">No issues match this filter.</p>
+        <p className="empty">Nothing at this level on this page. Choose another filter.</p>
       )}
 
-      <div className="stack">
+      <div className="rules">
         {rules.map((rule) => (
-          <details className="panel rule" key={rule.ruleId} open={rule.level !== "report_only"}>
+          <details className="rule" key={rule.ruleId} open={rule.level !== "report_only"}>
             <summary>
-              <span className="rule-name">{rule.ruleId}</span>
-              <LevelBadge level={rule.level} />
-              <span className="rule-count">{rule.total} flagged</span>
+              <span className="rule-total">{rule.total}</span>
+              <span className="rule-heading">
+                <span className="rule-help">{rule.help}</span>
+                <span className="rule-tags">
+                  <span className="rule-name">{rule.ruleId}</span>
+                  <LevelBadge level={rule.level} />
+                </span>
+              </span>
             </summary>
-            <p>{rule.help}</p>
             <ul className="group-list">
               {rule.groups.map((group) => {
                 const decision = decisions.get(group.key);
@@ -179,10 +198,13 @@ function ScanResultsPage() {
                     <div className="group-meta">
                       <span>
                         {group.count} {group.count === 1 ? "occurrence" : "occurrences"}
-                        {group.status === "needs_review" && ", axe was unsure"}
-                        {decision && `, ${DECISION_LABELS[decision]}`}
+                        {group.status === "needs_review" && ", the check was unsure"}
                       </span>
+                      {decision && (
+                        <span className="decision-tag">{DECISION_LABELS[decision]}</span>
+                      )}
                       <Link
+                        className="review-link"
                         to={`/scans/${scanId}/groups/${group.key}`}
                         aria-label={`Review ${rule.ruleId}: ${group.example.html.slice(0, 60)}`}
                       >

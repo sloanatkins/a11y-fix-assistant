@@ -1,5 +1,7 @@
 // Every call to the FastAPI backend lives here, so the screens stay about UI.
 
+import { getClientId } from "./clientId";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 // ── Types (these match app/models.py) ──
@@ -16,6 +18,8 @@ export type AxeIssue = {
   selector: string;
   html: string;
   parent_html: string;
+  options: string[];
+  context: Record<string, string>;
 };
 
 export type IssueGroup = {
@@ -36,6 +40,14 @@ export type Scan = {
   final_url: string | null;
   error: string | null;
   groups: IssueGroup[];
+};
+
+export type ScanSummary = {
+  id: number;
+  url: string;
+  status: Scan["status"];
+  created_at: string;
+  flagged: number;
 };
 
 export type Suggestion = {
@@ -95,7 +107,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Client-Id": getClientId() },
       ...options,
     });
   } catch {
@@ -115,6 +127,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export function startScan(url: string): Promise<Scan> {
   return request("/api/scans", { method: "POST", body: JSON.stringify({ url }) });
+}
+
+export function listScans(): Promise<ScanSummary[]> {
+  return request("/api/scans");
 }
 
 export function getScan(scanId: string | number): Promise<Scan> {

@@ -23,15 +23,17 @@ const GROUP = {
     selector: "li",
     html: '<li class="current">1</li>',
     parent_html: '<ul class="pagination" role="navigation"></ul>',
+    options: [],
+    context: {},
   },
 };
 
 const REPORT_ONLY = {
   ...GROUP,
   key: "def456",
-  rule_id: "color-contrast",
+  rule_id: "region",
   level: "report_only",
-  help: "Text must have enough contrast",
+  help: "All page content should be in a landmark",
   count: 2,
 };
 
@@ -131,6 +133,54 @@ describe("new scan", () => {
   });
 });
 
+describe("browser ID", () => {
+  it("sends the same saved ID with every request", async () => {
+    const fetchMock = vi.fn(
+      async () => new Response(JSON.stringify([]), { status: 200 })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const { listScans } = await import("./api");
+    await listScans();
+    await listScans();
+
+    const ids = fetchMock.mock.calls.map(
+      (call) => ((call as unknown[])[1] as RequestInit & { headers: Record<string, string> }).headers["X-Client-Id"]
+    );
+    expect(ids[0]).toMatch(/^[0-9a-f]{32}$/);
+    expect(ids[1]).toBe(ids[0]);
+  });
+});
+
+describe("recent scans", () => {
+  it("lists past scans with links back to them", async () => {
+    mockApi({
+      "GET /api/scans": {
+        body: [
+          {
+            id: 4,
+            url: "https://example.com/a",
+            status: "complete",
+            created_at: "2026-11-05 12:00:00",
+            flagged: 12,
+          },
+          {
+            id: 3,
+            url: "https://example.com/b",
+            status: "failed",
+            created_at: "2026-11-04 12:00:00",
+            flagged: 0,
+          },
+        ],
+      },
+    });
+    openAt("/");
+    const link = await screen.findByRole("link", { name: "https://example.com/a" });
+    expect(link).toHaveAttribute("href", "/scans/4");
+    expect(screen.getByText("12 flagged")).toBeInTheDocument();
+    expect(screen.getByText("Scan failed")).toBeInTheDocument();
+  });
+});
+
 describe("results", () => {
   it("sorts tested fixes first and filters by level", async () => {
     mockApi({
@@ -138,11 +188,11 @@ describe("results", () => {
       "GET /api/scans/1/reviews": { body: [] },
     });
     openAt("/scans/1");
-    expect(await screen.findByText("axe flagged 13 items across 2 groups.")).toBeInTheDocument();
-    const names = screen.getAllByText(/^(listitem|color-contrast)$/).map((n) => n.textContent);
-    expect(names).toEqual(["listitem", "color-contrast"]);
+    expect(await screen.findByText("The automated check flagged 13 items across 2 groups.")).toBeInTheDocument();
+    const names = screen.getAllByText(/^(listitem|region)$/).map((n) => n.textContent);
+    expect(names).toEqual(["listitem", "region"]);
 
-    await userEvent.selectOptions(screen.getByLabelText("Show"), "report_only");
+    await userEvent.click(screen.getByRole("button", { name: /Report only/ }));
     expect(screen.queryByText("listitem")).not.toBeInTheDocument();
   });
 
@@ -190,7 +240,7 @@ describe("review", () => {
       "GET /api/scans/1/reviews": { body: [] },
     });
     openAt("/scans/1/groups/def456");
-    expect(await screen.findByText(/reports this issue/)).toBeInTheDocument();
+    expect(await screen.findByText(/landmark such as main/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Get suggested fix" })).not.toBeInTheDocument();
   });
 
@@ -205,6 +255,81 @@ describe("review", () => {
     openAt("/scans/1/groups/abc123");
     expect(await screen.findByText("Saved: Rejected.")).toBeInTheDocument();
     expect(screen.getByLabelText("Rejected")).toBeChecked();
+  });
+});
+
+describe("issue clues", () => {
+  it("shows the flagged image and link destination", async () => {
+    const group = {
+      ...GROUP,
+      key: "img1",
+      rule_id: "image-alt",
+      level: "suggested",
+      example: {
+        ...GROUP.example,
+        html: '<img src="logo.png">',
+        context: { image_url: "https://x.test/logo.png", link_url: "https://x.test/home" },
+      },
+    };
+    mockApi({
+      "GET /api/scans/1": { body: { ...SCAN, groups: [group] } },
+      "GET /api/scans/1/reviews": { body: [] },
+    });
+    openAt("/scans/1/groups/img1");
+    expect(await screen.findByAltText("The flagged image")).toHaveAttribute(
+      "src",
+      "https://x.test/logo.png"
+    );
+    expect(screen.getByText("https://x.test/home")).toBeInTheDocument();
+  });
+
+  it("shows the current and suggested colors", async () => {
+    const group = {
+      ...GROUP,
+      key: "c1",
+      rule_id: "color-contrast",
+      level: "suggested",
+      example: {
+        ...GROUP.example,
+        context: {
+          text_color: "#bbbbbb",
+          background_color: "#ffffff",
+          current_ratio: "1.92",
+          required_ratio: "4.5",
+          suggested_color: "#767676",
+        },
+      },
+    };
+    mockApi({
+      "GET /api/scans/1": { body: { ...SCAN, groups: [group] } },
+      "GET /api/scans/1/reviews": { body: [] },
+    });
+    openAt("/scans/1/groups/c1");
+    expect(await screen.findByText(/1.92:1 now, needs 4.5:1/)).toBeInTheDocument();
+    expect(screen.getByText("#767676")).toBeInTheDocument();
+  });
+});
+
+describe("code comparison", () => {
+  it("marks only the part of the HTML that changed", async () => {
+    const element = {
+      ...SUGGESTION,
+      suggestion: {
+        ...SUGGESTION.suggestion,
+        fix_target: "element",
+        fixed_html: '<li class="current" title="Page 1">1</li>',
+      },
+    };
+    mockApi({
+      "GET /api/scans/1": { body: SCAN },
+      "GET /api/scans/1/reviews": {
+        body: [{ group_key: "abc123", suggestion_id: 7, decision: null }],
+      },
+      "POST /api/scans/1/groups/abc123/suggestion": { body: element },
+    });
+    const { container } = openAt("/scans/1/groups/abc123");
+    await screen.findByText("Passed axe checks");
+    expect(container.querySelector("mark")).toHaveTextContent('title="Page 1"');
   });
 });
 

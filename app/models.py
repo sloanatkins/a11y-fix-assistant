@@ -24,6 +24,8 @@ class AxeIssue(BaseModel):
     target: list = []  # axe's raw path, needed for shadow DOM
     html: str
     parent_html: str = ""
+    options: list[str] = []  # dropdown choices, the best clue to what it does
+    context: dict[str, str] = {}  # extra clues, like an image URL or link destination
 
 
 class PageScan(BaseModel):
@@ -78,6 +80,14 @@ class ScanResponse(BaseModel):
     final_url: str | None = None
     error: str | None = None
     groups: list[IssueGroup] = []
+
+
+class ScanSummary(BaseModel):
+    id: int
+    url: str
+    status: Literal["running", "complete", "failed"]
+    created_at: str
+    flagged: int
 
 
 class SuggestionResponse(BaseModel):

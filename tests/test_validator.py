@@ -115,3 +115,59 @@ def test_missing_element_is_not_applied(scan_env):
     )
     result = validate_fix(browser, url, issue, fix("<select>"))
     assert result.verdict == "not_applied"
+
+
+COLOR_PAGE = """<!doctype html><html><head><title>Test</title></head><body><main><h1>Test</h1>
+<p id="faint" style="color: #bbbbbb; background: #ffffff">Hard to read</p>
+<a href="/menu"><img src="menu.png"></a>
+<img id="pic" src="photo.png">
+</main></body></html>"""
+
+
+@pytest.fixture
+def color_env(tmp_path):
+    page_file = tmp_path / "color.html"
+    page_file.write_text(COLOR_PAGE)
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        yield browser, page_file.as_uri()
+        browser.close()
+
+
+def test_html_lang_fix_works_on_the_root_element(color_env):
+    browser, url = color_env
+    issue = find_issue(browser, url, "html-has-lang")
+    result = validate_fix(browser, url, issue, fix('<html lang="en">', needs_person=True))
+    assert result.applied is True
+    assert (result.rule_before, result.rule_after) == (1, 0)
+
+
+def test_suggested_color_passes_axe(color_env):
+    browser, url = color_env
+    issue = find_issue(browser, url, "color-contrast")
+    color = issue.context["suggested_color"]
+    fixed = f'<p id="faint" style="color: {color}; background: #ffffff">Hard to read</p>'
+    result = validate_fix(browser, url, issue, fix(fixed, needs_person=True))
+    assert (result.rule_before, result.rule_after) == (1, 0)
+
+
+def test_image_and_link_context_is_saved(color_env):
+    browser, url = color_env
+    link = find_issue(browser, url, "link-name")
+    assert link.context["link_url"].endswith("/menu")
+    assert link.context["image_url"].endswith("menu.png")
+    image = next(
+        i for i in scan_page(browser, url).issues
+        if i.rule_id == "image-alt" and "photo" in i.html
+    )
+    assert image.context["image_url"].endswith("photo.png")
+
+
+def test_decorative_alt_passes_axe(color_env):
+    browser, url = color_env
+    image = next(
+        i for i in scan_page(browser, url).issues
+        if i.rule_id == "image-alt" and "photo" in i.html
+    )
+    result = validate_fix(browser, url, image, fix('<img id="pic" src="photo.png" alt="">', needs_person=True))
+    assert result.rule_after == result.rule_before - 1

@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 from axe_playwright_python.sync_playwright import Axe
 from playwright.sync_api import Browser, Page
 
+from app.contrast import suggest_text_color
 from app.models import AxeIssue, PageScan
 
 
@@ -37,6 +38,12 @@ RULE_LEVELS = {
     "select-name": "tested",
     "listitem": "tested",
     "frame-title": "suggested",
+    "html-has-lang": "suggested",
+    "image-alt": "suggested",
+    "link-name": "suggested",
+    "button-name": "suggested",
+    "label": "suggested",
+    "color-contrast": "suggested",
 }
 
 
@@ -100,6 +107,85 @@ def get_parent_tag(page: Page, target: list) -> str:
     )
 
 
+def get_select_options(page: Page, target: list, rule_id: str) -> list[str]:
+    """
+    axe often only gives us a dropdown's opening tag, but its options are the
+    best clue about what it's for, so grab a few of them.
+
+    Returns:
+    --------
+    Up to 8 option labels, or an empty list if this isn't a dropdown
+    """
+    if rule_id != "select-name" or len(target) != 1 or not isinstance(target[0], str):
+        return []
+    return page.evaluate(
+        """(selector) => {
+            const select = document.querySelector(selector);
+            if (!select || !select.options) return [];
+            return [...select.options].slice(0, 8).map((o) => o.text.trim()).filter(Boolean);
+        }""",
+        target[0],
+    )
+
+
+def get_element_context(page: Page, target: list, rule_id: str) -> dict[str, str]:
+    """
+    Grab clues the model and I need that aren't in the flagged HTML, like
+    where a link goes or the full address of an image.
+
+    Returns:
+    --------
+    Dictionary of clues, empty if there's nothing useful for this rule
+    """
+    if rule_id not in ("image-alt", "link-name"):
+        return {}
+    if len(target) != 1 or not isinstance(target[0], str):
+        return {}
+    return page.evaluate(
+        """(selector) => {
+            const el = document.querySelector(selector);
+            if (!el) return {};
+            const image = el.tagName === "IMG" ? el : el.querySelector("img");
+            const context = {};
+            if (el.href) context.link_url = el.href;
+            if (image && image.src) context.image_url = image.src;
+            if (image) {
+                context.image_size = `${image.naturalWidth}x${image.naturalHeight}`;
+            }
+            const nearby = el.parentElement?.textContent?.trim().slice(0, 200);
+            if (nearby) context.nearby_text = nearby;
+            return context;
+        }""",
+        target[0],
+    )
+
+
+def get_contrast_context(node: dict) -> dict[str, str]:
+    """
+    Pull the colors out of axe's result and work out a passing text color.
+
+    Returns:
+    --------
+    Colors and ratios as strings, empty if axe didn't give us the colors
+    """
+    for check in node.get("any", []):
+        data = check.get("data")
+        if not isinstance(data, dict) or not data.get("fgColor") or not data.get("bgColor"):
+            continue
+        target = float(str(data.get("expectedContrastRatio", "4.5")).split(":")[0])
+        context = {
+            "text_color": data["fgColor"],
+            "background_color": data["bgColor"],
+            "current_ratio": str(data.get("contrastRatio", "")),
+            "required_ratio": str(target),
+        }
+        suggested = suggest_text_color(data["fgColor"], data["bgColor"], target)
+        if suggested:
+            context["suggested_color"] = suggested
+        return context
+    return {}
+
+
 # ── Scanning ──
 
 def scan_page(browser: Browser, url: str) -> PageScan:
@@ -136,6 +222,12 @@ def scan_page(browser: Browser, url: str) -> PageScan:
                             target=node["target"],
                             html=node["html"],
                             parent_html=get_parent_tag(page, node["target"]),
+                            options=get_select_options(page, node["target"], finding["id"]),
+                            context=(
+                                get_contrast_context(node)
+                                if finding["id"] == "color-contrast"
+                                else get_element_context(page, node["target"], finding["id"])
+                            ),
                         )
                     )
         return PageScan(url=url, final_url=page.url, issues=issues)

@@ -10,6 +10,7 @@ Dependencies:
 """
 
 import json
+import re
 from pathlib import Path
 
 from groq import BadRequestError, Groq
@@ -39,6 +40,39 @@ RULE_HINTS = {
         "and put that role's job on a wrapper. For role=navigation use "
         "<nav aria-label=...><ul ...>...</ul></nav>."
     ),
+    "select-name": (
+        "Base the label on what the options have in common, like Subject or Program type. "
+        "If the options don't make the purpose clear, use a placeholder like "
+        "[DESCRIBE THE DROPDOWN] and set needs_human_input to true. "
+        "Never use a generic label like Select option or Dropdown."
+    ),
+    "html-has-lang": (
+        "Add a lang attribute to the html opening tag and return only that tag. "
+        "Use the language the nearby text or attributes suggest, otherwise lang=\"en\"."
+    ),
+    "image-alt": (
+        "You can't see the image. If the file name or a very small size shows it's only "
+        "decoration, like a border or spacer, use alt=\"\". If the link, file name, or nearby "
+        "text clearly says what it shows, describe that. Otherwise use "
+        "alt=\"[DESCRIBE THE IMAGE]\". Always set needs_human_input to true."
+    ),
+    "link-name": (
+        "Use the link's destination and nearby text to write short link text as an aria-label, "
+        "or add an alt attribute to its image. If the purpose isn't clear, use "
+        "[DESCRIBE THE LINK]. Always set needs_human_input to true."
+    ),
+    "button-name": (
+        "Add an aria-label that says what the button does, based only on its HTML. "
+        "If that's unclear, use [DESCRIBE THE BUTTON]."
+    ),
+    "label": (
+        "Add an aria-label based on the field's name, id, or placeholder. "
+        "If that's unclear, use [DESCRIBE THE FIELD]."
+    ),
+    "color-contrast": (
+        "Use the suggested_color from the context as the color in the element's style attribute, "
+        "keeping any other styles. Never choose a different color. Set needs_human_input to true."
+    ),
     "frame-title": (
         "You can't see inside the frame, so always use a placeholder title "
         "and set needs_human_input to true."
@@ -47,6 +81,22 @@ RULE_HINTS = {
 
 
 # ── Guards ──
+
+# these always need a person, no matter how sure the model sounds
+REVIEW_RULES = {
+    "image-alt": "Only a person can check that this describes the image.",
+    "link-name": "Check that this describes where the link goes.",
+    "html-has-lang": "Check that this is the page's main language.",
+    "color-contrast": "Check this color against your brand colors.",
+}
+
+# labels like these pass axe but don't tell anyone what the control does
+GENERIC_LABEL = re.compile(
+    r'aria-label="\s*(select|select (an? )?option|choose|choose (an? )?option|option|options|'
+    r'dropdown|menu|select menu|field|input)\s*"',
+    re.IGNORECASE,
+)
+
 
 def apply_guards(issue: AxeIssue, suggestion: FixSuggestion) -> FixSuggestion:
     """
@@ -60,6 +110,10 @@ def apply_guards(issue: AxeIssue, suggestion: FixSuggestion) -> FixSuggestion:
     reason = ""
     if issue.rule_id == "frame-title":
         reason = "Only a person can check what this frame shows."
+    elif issue.rule_id in REVIEW_RULES:
+        reason = REVIEW_RULES[issue.rule_id]
+    elif GENERIC_LABEL.search(suggestion.fixed_html):
+        reason = "This label is too generic to tell someone what the control does."
     elif (
         issue.rule_id == "listitem"
         and "role=" in issue.parent_html
@@ -93,6 +147,8 @@ def suggest_fix(issue: AxeIssue, client: Groq | None = None) -> FixSuggestion:
         f"Selector: {issue.selector}\n"
         f"HTML: {issue.html}\n"
         f"Parent tag: {issue.parent_html or 'unknown'}\n"
+        f"Options: {', '.join(issue.options) or 'none'}\n"
+        f"Context: {json.dumps(issue.context) if issue.context else 'none'}\n"
         f"Hint: {RULE_HINTS.get(issue.rule_id, 'none')}\n"
         "</issue>"
     )

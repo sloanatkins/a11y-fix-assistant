@@ -48,9 +48,10 @@ function DecisionForm({ suggestionId, fixedHtml, initialDecision }: DecisionForm
   }
 
   return (
-    <form className="panel stack" onSubmit={handleSubmit}>
+    <form className="decision-form" onSubmit={handleSubmit}>
       <fieldset>
         <legend>What did you do with this fix?</legend>
+        <div className="choices">
         {CHOICES.map((choice) => (
           <label className="choice" key={choice}>
             <input
@@ -66,6 +67,7 @@ function DecisionForm({ suggestionId, fixedHtml, initialDecision }: DecisionForm
             {DECISION_LABELS[choice]}
           </label>
         ))}
+        </div>
       </fieldset>
 
       {decision === "edited" && (

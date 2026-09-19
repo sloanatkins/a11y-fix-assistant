@@ -17,6 +17,8 @@ from app.grouping import group_issues
 from app.models import AxeIssue, FixSuggestion, PageScan, ValidationResult
 
 PUBLIC_URL = "https://93.184.216.34/"
+BROWSER_A = {"X-Client-Id": "browser-a-1234567890"}
+BROWSER_B = {"X-Client-Id": "browser-b-1234567890"}
 
 
 def make_issue(rule_id: str, html: str, parent: str = "", level: str = "tested") -> AxeIssue:
@@ -38,6 +40,7 @@ FAKE_ISSUES = [
     make_issue("listitem", "<li>2</li>", parent='<ul role="navigation"></ul>'),
     make_issue("select-name", '<select id="a">'),
     make_issue("color-contrast", "<p>x</p>", level="report_only"),
+    make_issue("region", "<p>y</p>", level="report_only"),
 ]
 
 
@@ -49,7 +52,7 @@ def client(tmp_path, monkeypatch):
         "run_scan",
         lambda url: PageScan(url=url, final_url=url, issues=FAKE_ISSUES),
     )
-    with TestClient(main.app) as test_client:
+    with TestClient(main.app, headers=BROWSER_A) as test_client:
         yield test_client
 
 
@@ -91,13 +94,13 @@ def fake_suggestion(monkeypatch) -> list:
 
 def test_grouping_merges_children_of_one_parent():
     groups = group_issues(FAKE_ISSUES)
-    assert [g.count for g in groups] == [2, 1, 1]
+    assert [g.count for g in groups] == [2, 1, 1, 1]
 
 
 def test_scan_finishes_with_groups(client):
     scan = start_scan(client)
     assert scan["status"] == "complete"
-    assert len(scan["groups"]) == 3
+    assert len(scan["groups"]) == 4
 
 
 @pytest.mark.parametrize("url", ["http://localhost:8000", "ftp://example.com"])
@@ -202,7 +205,7 @@ def test_real_scan_runs_from_the_background_task(tmp_path, monkeypatch):
     # the local file stands in for a public page in this one test
     monkeypatch.setattr(main, "validate_url", lambda url: url)
 
-    with TestClient(main.app) as client:
+    with TestClient(main.app, headers=BROWSER_A) as client:
         created = client.post("/api/scans", json={"url": page.as_uri()}).json()
         scan = client.get(f"/api/scans/{created['id']}").json()
 
@@ -220,3 +223,82 @@ def test_reviews_show_saved_decisions(client, monkeypatch):
 
     reviews = client.get(f"/api/scans/{scan['id']}/reviews").json()
     assert reviews == [{"group_key": key, "suggestion_id": suggestion_id, "decision": "edited"}]
+
+
+def test_scan_list_is_newest_first_with_counts(client):
+    first = start_scan(client)
+    second = start_scan(client)
+    scans = client.get("/api/scans").json()
+    assert [s["id"] for s in scans] == [second["id"], first["id"]]
+    assert scans[0]["flagged"] == 5
+
+
+def test_old_scans_use_current_levels(client):
+    # the fake saved color-contrast as report only, but it's a draft rule now
+    scan = start_scan(client)
+    group = next(g for g in scan["groups"] if g["rule_id"] == "color-contrast")
+    assert group["level"] == "suggested"
+
+
+def test_each_browser_only_lists_its_own_scans(client):
+    mine = start_scan(client)
+    theirs = client.post("/api/scans", json={"url": PUBLIC_URL}, headers=BROWSER_B).json()
+
+    assert [s["id"] for s in client.get("/api/scans").json()] == [mine["id"]]
+    other_list = client.get("/api/scans", headers=BROWSER_B).json()
+    assert [s["id"] for s in other_list] == [theirs["id"]]
+
+
+def test_another_browser_cant_open_or_act_on_my_scan(client, monkeypatch):
+    fake_suggestion(monkeypatch)
+    scan = start_scan(client)
+    key = scan["groups"][0]["key"]
+    path = f"/api/scans/{scan['id']}"
+
+    assert client.get(path, headers=BROWSER_B).status_code == 404
+    assert client.get(f"{path}/reviews", headers=BROWSER_B).status_code == 404
+    assert client.post(f"{path}/groups/{key}/suggestion", headers=BROWSER_B).status_code == 404
+
+    suggestion_id = client.post(f"{path}/groups/{key}/suggestion").json()["id"]
+    decision = client.post(
+        f"/api/suggestions/{suggestion_id}/decision",
+        json={"decision": "used"},
+        headers=BROWSER_B,
+    )
+    assert decision.status_code == 404
+    assert client.get("/api/evaluation", headers=BROWSER_B).json()["suggestions"] == 0
+    assert client.get("/api/evaluation").json()["suggestions"] == 1
+
+
+@pytest.mark.parametrize("headers", [{}, {"X-Client-Id": "short"}, {"X-Client-Id": "bad id!!!!!!!!!!!!!!!!"}])
+def test_missing_or_bad_browser_id_is_rejected(tmp_path, monkeypatch, headers):
+    monkeypatch.setattr(config, "DATABASE_PATH", str(tmp_path / "test.db"))
+    with TestClient(main.app) as bare_client:
+        assert bare_client.get("/api/scans", headers=headers).status_code == 400
+
+
+def test_old_scans_go_to_the_first_browser_that_asks(client):
+    from app import db
+    with db.connect() as connection:
+        connection.execute(
+            "INSERT INTO scans (url, status, client_id) VALUES ('https://old.test', 'complete', NULL)"
+        )
+    assert len(client.get("/api/scans").json()) == 1
+    assert client.get("/api/scans", headers=BROWSER_B).json() == []
+
+
+def test_older_database_gets_upgraded(tmp_path, monkeypatch):
+    import sqlite3
+    path = tmp_path / "old.db"
+    old = sqlite3.connect(path)
+    old.execute(
+        "CREATE TABLE scans (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, "
+        "status TEXT NOT NULL, final_url TEXT, error TEXT, groups_json TEXT NOT NULL DEFAULT '[]', "
+        "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    )
+    old.execute("INSERT INTO scans (url, status) VALUES ('https://old.test', 'complete')")
+    old.commit()
+    old.close()
+    monkeypatch.setattr(config, "DATABASE_PATH", str(path))
+    with TestClient(main.app, headers=BROWSER_A) as client:
+        assert [s["url"] for s in client.get("/api/scans").json()] == ["https://old.test"]

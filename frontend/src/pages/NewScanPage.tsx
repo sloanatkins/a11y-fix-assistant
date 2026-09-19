@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { startScan } from "../api";
+import RecentScans from "../components/RecentScans";
 
 function NewScanPage() {
   const [url, setUrl] = useState("");
@@ -26,14 +27,14 @@ function NewScanPage() {
 
   return (
     <>
-      <h1>Scan a public page</h1>
+      <h1 className="hero-title">Scan a public page</h1>
       <p className="lede">
         Find accessibility issues, review suggested HTML fixes, and keep track of what works.
       </p>
 
-      <form className="panel stack" onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="page-url">Page URL</label>
+      <form className="scan-form" onSubmit={handleSubmit}>
+        <label htmlFor="page-url">Page URL</label>
+        <div className="scan-input">
           <input
             id="page-url"
             name="url"
@@ -43,10 +44,10 @@ function NewScanPage() {
             value={url}
             onChange={(event) => setUrl(event.target.value)}
           />
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Starting scan..." : "Scan page"}
+          </button>
         </div>
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Starting scan..." : "Scan page"}
-        </button>
         {error && (
           <p className="message error" role="alert">
             {error}
@@ -54,10 +55,27 @@ function NewScanPage() {
         )}
       </form>
 
-      <p className="note">
-        A clean scan doesn&apos;t mean a page is fully accessible. Automated tools miss problems
-        that need a person to judge.
-      </p>
+      <RecentScans />
+
+      <section aria-labelledby="how-heading" className="how">
+        <h2 id="how-heading">How a review works</h2>
+        <ol>
+          <li>
+            <strong>Scan.</strong> axe, an open-source accessibility checker, tests the page in a real browser.
+          </li>
+          <li>
+            <strong>Draft.</strong> For supported issues, Groq explains the problem and writes a
+            fix.
+          </li>
+          <li>
+            <strong>Test.</strong> The fix goes on a temporary copy of the page, then axe checks it
+            again.
+          </li>
+          <li>
+            <strong>Decide.</strong> You use it, edit it, or reject it. Nothing on the site changes.
+          </li>
+        </ol>
+      </section>
     </>
   );
 }
