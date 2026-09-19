@@ -32,11 +32,13 @@ from app.models import (
     FixSuggestion,
     PageScan,
     ReviewStatus,
+    RetryRequest,
     RuleSummary,
     ScanRequest,
     ScanResponse,
     ScanSummary,
     SuggestionResponse,
+    TestEditRequest,
     ValidationResult,
 )
 from app.scanner import scan_page, validate_url
@@ -186,6 +188,63 @@ def create_suggestion(
 
     validation = run_validation(scan.final_url, group.example, suggestion)
     return db.save_suggestion(scan_id, group, config.GROQ_MODEL, suggestion, validation)
+
+
+def load_review_parts(suggestion_id: int, client_id: str):
+    """Gets a suggestion and its issue group, as long as they're this browser's."""
+    if not db.suggestion_belongs_to(suggestion_id, client_id):
+        raise HTTPException(status_code=404, detail="Suggestion not found")
+    saved = db.get_suggestion_by_id(suggestion_id)
+    scan = db.get_scan(saved.scan_id)
+    group = next((g for g in scan.groups if g.key == saved.group_key), None)
+    if group is None:
+        raise HTTPException(status_code=404, detail="Issue group not found")
+    return saved, scan, group
+
+
+MAX_ATTEMPTS = 3
+
+
+@app.post("/api/suggestions/{suggestion_id}/retry", response_model=SuggestionResponse)
+def retry_suggestion(
+    suggestion_id: int,
+    request: RetryRequest,
+    client_id: str = Depends(get_client_id),
+) -> SuggestionResponse:
+    saved, scan, group = load_review_parts(suggestion_id, client_id)
+
+    # stops one issue from using up Groq requests forever
+    if saved.attempts >= MAX_ATTEMPTS:
+        raise HTTPException(
+            status_code=409,
+            detail=f"This issue has used all {MAX_ATTEMPTS} attempts. Fix this one by hand.",
+        )
+
+    try:
+        suggestion = suggest_fix(
+            group.example,
+            previous_html=saved.suggestion.fixed_html,
+            feedback=request.reason,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail="Could not get a new suggestion") from e
+
+    validation = run_validation(scan.final_url, group.example, suggestion)
+    return db.replace_suggestion(suggestion_id, suggestion, validation, request.reason)
+
+
+@app.post("/api/suggestions/{suggestion_id}/test-edit", response_model=ValidationResult)
+def test_edit(
+    suggestion_id: int,
+    request: TestEditRequest,
+    client_id: str = Depends(get_client_id),
+) -> ValidationResult:
+    """Runs my edited HTML through the same check as the model's fix. Doesn't save anything."""
+    saved, scan, group = load_review_parts(suggestion_id, client_id)
+    edited = saved.suggestion.model_copy(
+        update={"fixed_html": request.html, "needs_human_input": False, "human_input_reason": ""}
+    )
+    return run_validation(scan.final_url, group.example, edited)
 
 
 @app.post("/api/suggestions/{suggestion_id}/decision", response_model=DecisionResponse)

@@ -180,3 +180,17 @@ def test_context_is_sent_to_the_model():
     )
     suggest_fix(issue, client=client)
     assert "https://x.test/menu" in client.calls[0]["messages"][1]["content"]
+
+
+def test_retry_tells_the_model_what_went_wrong():
+    client = FakeClient(json.dumps({
+        "explanation": "x",
+        "fix_target": "element",
+        "fixed_html": "<a>",
+        "needs_human_input": False,
+        "human_input_reason": "",
+    }))
+    suggest_fix(ISSUE, client=client, previous_html="<old>", feedback="label too vague")
+    message = client.calls[0]["messages"][1]["content"]
+    assert "<old>" in message
+    assert "label too vague" in message

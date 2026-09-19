@@ -1096,3 +1096,36 @@ thead th:first-child {
     text-align: right;
   }
 }
+
+/* ── Retry and edit testing ── */
+
+button.secondary {
+  justify-self: start;
+  padding: 10px 18px;
+  border: 2px solid var(--cobalt);
+  background: var(--surface);
+  color: var(--cobalt);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--code-bg);
+}
+
+button.secondary:disabled {
+  border-color: #5c6585;
+  background: var(--surface);
+  color: #5c6585;
+}
+
+.retry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.field > div[role="status"] .message {
+  margin-top: 0;
+}

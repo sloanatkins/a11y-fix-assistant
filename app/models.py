@@ -95,6 +95,7 @@ class SuggestionResponse(BaseModel):
     scan_id: int
     group_key: str
     model: str
+    attempts: int = 1
     suggestion: FixSuggestion
     validation: ValidationResult
 
@@ -104,6 +105,15 @@ class DecisionRequest(BaseModel):
     final_html: str | None = None
     reason: str | None = None
     seconds_spent: float | None = Field(default=None, ge=0)
+    final_verdict: str | None = None
+
+
+class RetryRequest(BaseModel):
+    reason: str | None = Field(default=None, max_length=1000)
+
+
+class TestEditRequest(BaseModel):
+    html: str = Field(min_length=1, max_length=50_000)
 
 
 class DecisionResponse(DecisionRequest):

@@ -171,3 +171,20 @@ def test_decorative_alt_passes_axe(color_env):
     )
     result = validate_fix(browser, url, image, fix('<img id="pic" src="photo.png" alt="">', needs_person=True))
     assert result.rule_after == result.rule_before - 1
+
+
+def test_fix_cant_pass_by_removing_the_link(color_env):
+    browser, url = color_env
+    link = find_issue(browser, url, "link-name")
+    result = validate_fix(browser, url, link, fix('<img src="menu.png" alt="Menu">'))
+    assert result.verdict == "not_applied"
+    assert "removes the <a>" in result.detail
+
+
+def test_link_fix_that_keeps_the_link_passes(color_env):
+    browser, url = color_env
+    link = find_issue(browser, url, "link-name")
+    fixed = '<a href="/menu"><img src="menu.png" alt="Menu"></a>'
+    result = validate_fix(browser, url, link, fix(fixed))
+    assert result.applied is True
+    assert result.rule_after == result.rule_before - 1

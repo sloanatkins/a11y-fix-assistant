@@ -50,11 +50,22 @@ export type ScanSummary = {
   flagged: number;
 };
 
+export type Validation = {
+  verdict: "passed" | "needs_review" | "failed" | "not_applied";
+  applied: boolean;
+  detail: string;
+  rule_before: number;
+  rule_after: number;
+  new_violations: Record<string, number>;
+  has_placeholder: boolean;
+};
+
 export type Suggestion = {
   id: number;
   scan_id: number;
   group_key: string;
   model: string;
+  attempts: number;
   suggestion: {
     explanation: string;
     fix_target: "element" | "parent";
@@ -62,15 +73,7 @@ export type Suggestion = {
     needs_human_input: boolean;
     human_input_reason: string;
   };
-  validation: {
-    verdict: "passed" | "needs_review" | "failed" | "not_applied";
-    applied: boolean;
-    detail: string;
-    rule_before: number;
-    rule_after: number;
-    new_violations: Record<string, number>;
-    has_placeholder: boolean;
-  };
+  validation: Validation;
 };
 
 export type ReviewStatus = {
@@ -84,6 +87,7 @@ export type DecisionInput = {
   final_html?: string;
   reason?: string;
   seconds_spent?: number;
+  final_verdict?: Validation["verdict"];
 };
 
 export type RuleSummary = {
@@ -147,6 +151,20 @@ export function getSuggestion(
 ): Promise<Suggestion> {
   return request(`/api/scans/${scanId}/groups/${groupKey}/suggestion`, {
     method: "POST",
+  });
+}
+
+export function retrySuggestion(suggestionId: number, reason: string): Promise<Suggestion> {
+  return request(`/api/suggestions/${suggestionId}/retry`, {
+    method: "POST",
+    body: JSON.stringify({ reason: reason || null }),
+  });
+}
+
+export function testEdit(suggestionId: number, html: string): Promise<Validation> {
+  return request(`/api/suggestions/${suggestionId}/test-edit`, {
+    method: "POST",
+    body: JSON.stringify({ html }),
   });
 }
 

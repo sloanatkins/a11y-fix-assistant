@@ -55,6 +55,12 @@ APPLY_FIX_JS = """
     const root = template.content.firstElementChild;
     if (!root) return "Fix did not contain any HTML";
 
+    // a fix can't pass by deleting the thing it's fixing, like turning a link into an image
+    const fixedElements = [root, ...root.querySelectorAll("*")];
+    if (!fixedElements.some((el) => el.tagName === node.tagName)) {
+        return `This fix removes the <${node.tagName.toLowerCase()}> element instead of fixing it`;
+    }
+
     // the children go where the model wrote ..., or in the matching tag
     const all = [root, ...root.querySelectorAll("*")];
     const hasDots = (el) => [...el.childNodes].some(

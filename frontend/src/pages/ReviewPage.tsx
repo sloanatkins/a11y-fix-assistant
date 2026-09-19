@@ -204,9 +204,16 @@ function ReviewPage() {
           <section aria-labelledby="decision-heading">
             <h2 id="decision-heading">Your decision</h2>
             <DecisionForm
+              // a new attempt gets a fresh form and timer
+              key={`${suggestion.id}-${suggestion.attempts}`}
               suggestionId={suggestion.id}
               fixedHtml={suggestion.suggestion.fixed_html}
               initialDecision={decision}
+              attempts={suggestion.attempts}
+              onRetried={(next) => {
+                setSuggestion(next);
+                setDecision(null);
+              }}
             />
           </section>
         </>

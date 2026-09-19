@@ -51,6 +51,7 @@ const SUGGESTION = {
   scan_id: 1,
   group_key: "abc123",
   model: "test-model",
+  attempts: 1,
   suggestion: {
     explanation: "The role on the list stops it being a list.",
     fix_target: "parent",
@@ -255,6 +256,83 @@ describe("review", () => {
     openAt("/scans/1/groups/abc123");
     expect(await screen.findByText("Saved: Rejected.")).toBeInTheDocument();
     expect(screen.getByLabelText("Rejected")).toBeChecked();
+  });
+});
+
+describe("fixing a bad suggestion", () => {
+  const savedRoutes = {
+    "GET /api/scans/1": { body: SCAN },
+    "GET /api/scans/1/reviews": {
+      body: [{ group_key: "abc123", suggestion_id: 7, decision: null }],
+    },
+    "POST /api/scans/1/groups/abc123/suggestion": { body: SUGGESTION },
+  };
+
+  it("sends the reason with Try again and shows the new fix", async () => {
+    const newFix = {
+      ...SUGGESTION,
+      attempts: 2,
+      suggestion: { ...SUGGESTION.suggestion, fixed_html: "<nav>second try</nav>" },
+    };
+    const calls = mockApi({
+      ...savedRoutes,
+      "POST /api/suggestions/7/decision": { body: { id: 1 } },
+      "POST /api/suggestions/7/retry": { body: newFix },
+    });
+    openAt("/scans/1/groups/abc123");
+    await userEvent.click(await screen.findByLabelText("Rejected"));
+    await userEvent.type(screen.getByLabelText("Why was it wrong?"), "wrong wrapper");
+    expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Try again" }));
+
+    // the highlight splits the text up, so match on the whole code block
+    expect(
+      await screen.findByText(
+        (_, element) =>
+          element?.tagName === "CODE" && element.textContent === "<nav>second try</nav>"
+      )
+    ).toBeInTheDocument();
+    expect(calls.find((c) => c.key.endsWith("/retry"))?.body).toEqual({ reason: "wrong wrapper" });
+    expect(screen.getByLabelText("Rejected")).not.toBeChecked();
+  });
+
+  it("hides Try again once attempts run out", async () => {
+    mockApi({
+      ...savedRoutes,
+      "GET /api/scans/1/reviews": {
+        body: [{ group_key: "abc123", suggestion_id: 7, decision: "rejected" }],
+      },
+      "POST /api/scans/1/groups/abc123/suggestion": { body: { ...SUGGESTION, attempts: 3 } },
+    });
+    openAt("/scans/1/groups/abc123");
+    expect(await screen.findByText(/All 3 attempts are used/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
+  });
+
+  it("tests my edit, clears the result when I change it, and saves the verdict", async () => {
+    const calls = mockApi({
+      ...savedRoutes,
+      "POST /api/suggestions/7/test-edit": { body: { ...SUGGESTION.validation, rule_after: 0 } },
+      "POST /api/suggestions/7/decision": { body: { id: 1 } },
+    });
+    openAt("/scans/1/groups/abc123");
+    await userEvent.click(await screen.findByLabelText("Edited"));
+    const textarea = screen.getByLabelText("Your final HTML");
+
+    await userEvent.click(screen.getByRole("button", { name: "Test my edit" }));
+    expect(await screen.findByText(/axe count 11 before, 0 after/)).toBeInTheDocument();
+
+    await userEvent.type(textarea, "x");
+    expect(screen.queryByText(/axe count 11 before/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Test my edit" }));
+    await screen.findByText(/axe count 11 before, 0 after/);
+    await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+    await screen.findByText("Saved: Edited.");
+    const saved = calls.find((c) => c.key.endsWith("/decision"))?.body as Record<string, unknown>;
+    expect(saved.final_verdict).toBe("passed");
   });
 });
 

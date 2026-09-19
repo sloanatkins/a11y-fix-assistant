@@ -65,7 +65,7 @@ def start_scan(client: TestClient) -> dict:
 def fake_suggestion(monkeypatch) -> list:
     calls = []
 
-    def suggest(issue):
+    def suggest(issue, **kwargs):
         calls.append(issue)
         return FixSuggestion(
             explanation="test",
@@ -302,3 +302,91 @@ def test_older_database_gets_upgraded(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "DATABASE_PATH", str(path))
     with TestClient(main.app, headers=BROWSER_A) as client:
         assert [s["url"] for s in client.get("/api/scans").json()] == ["https://old.test"]
+
+
+def make_suggestion(client, monkeypatch):
+    calls = fake_suggestion(monkeypatch)
+    scan = start_scan(client)
+    key = scan["groups"][0]["key"]
+    return calls, client.post(f"/api/scans/{scan['id']}/groups/{key}/suggestion").json()["id"]
+
+
+def test_retry_replaces_the_fix_and_keeps_the_rejection_counted(client, monkeypatch):
+    calls, suggestion_id = make_suggestion(client, monkeypatch)
+    seen = {}
+
+    def second_try(issue, **kwargs):
+        seen.update(kwargs)
+        return FixSuggestion(
+            explanation="new",
+            fix_target="parent",
+            fixed_html="<nav>new</nav>",
+            needs_human_input=False,
+            human_input_reason="",
+        )
+
+    client.post(
+        f"/api/suggestions/{suggestion_id}/decision",
+        json={"decision": "rejected", "reason": "wrong wrapper"},
+    )
+    monkeypatch.setattr(main, "suggest_fix", second_try)
+    retried = client.post(f"/api/suggestions/{suggestion_id}/retry", json={"reason": "wrong wrapper"})
+
+    assert retried.status_code == 200
+    assert retried.json()["attempts"] == 2
+    assert retried.json()["suggestion"]["fixed_html"] == "<nav>new</nav>"
+    assert seen["feedback"] == "wrong wrapper"
+    assert seen["previous_html"] == "<nav><ul>...</ul></nav>"
+
+    # the new attempt starts undecided, but the old rejection still counts
+    assert client.get(f"/api/scans/1/reviews").json()[0]["decision"] is None
+    rule = client.get("/api/evaluation").json()["rules"][0]
+    assert rule["suggestions"] == 2
+    assert rule["decisions"] == {"rejected": 1}
+
+
+def test_retries_stop_after_three_attempts(client, monkeypatch):
+    _, suggestion_id = make_suggestion(client, monkeypatch)
+    path = f"/api/suggestions/{suggestion_id}/retry"
+    assert client.post(path, json={}).status_code == 200
+    assert client.post(path, json={}).status_code == 200
+    assert client.post(path, json={}).status_code == 409
+
+
+def test_edit_runs_my_html_through_validation_without_saving(client, monkeypatch):
+    _, suggestion_id = make_suggestion(client, monkeypatch)
+    seen = {}
+
+    def check(url, issue, suggestion):
+        seen["html"] = suggestion.fixed_html
+        return ValidationResult(
+            verdict="failed",
+            applied=True,
+            detail="no",
+            rule_before=2,
+            rule_after=2,
+            new_violations={},
+            has_placeholder=False,
+        )
+
+    monkeypatch.setattr(main, "run_validation", check)
+    result = client.post(f"/api/suggestions/{suggestion_id}/test-edit", json={"html": "<nav>mine</nav>"})
+    assert result.json()["verdict"] == "failed"
+    assert seen["html"] == "<nav>mine</nav>"
+    assert client.get("/api/evaluation").json()["rules"][0]["verdicts"] == {"passed": 1}
+
+
+def test_another_browser_cant_retry_or_test(client, monkeypatch):
+    _, suggestion_id = make_suggestion(client, monkeypatch)
+    base = f"/api/suggestions/{suggestion_id}"
+    assert client.post(f"{base}/retry", json={}, headers=BROWSER_B).status_code == 404
+    assert client.post(f"{base}/test-edit", json={"html": "<a>"}, headers=BROWSER_B).status_code == 404
+
+
+def test_final_verdict_is_saved_with_the_decision(client, monkeypatch):
+    _, suggestion_id = make_suggestion(client, monkeypatch)
+    saved = client.post(
+        f"/api/suggestions/{suggestion_id}/decision",
+        json={"decision": "edited", "final_html": "<nav>", "final_verdict": "passed"},
+    )
+    assert saved.json()["final_verdict"] == "passed"

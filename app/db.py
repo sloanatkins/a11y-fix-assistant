@@ -60,6 +60,18 @@ CREATE TABLE IF NOT EXISTS decisions (
     final_html TEXT,
     reason TEXT,
     seconds_spent REAL,
+    final_verdict TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS retired_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    suggestion_id INTEGER NOT NULL REFERENCES suggestions(id),
+    rule_id TEXT NOT NULL,
+    occurrences INTEGER NOT NULL,
+    suggestion_json TEXT NOT NULL,
+    validation_json TEXT NOT NULL,
+    decision TEXT,
+    reason TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 """
@@ -79,15 +91,21 @@ def connect() -> Iterator[sqlite3.Connection]:
         connection.close()
 
 
+def add_missing_column(db: sqlite3.Connection, table: str, column: str, kind: str) -> None:
+    columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})")]
+    if column not in columns:
+        db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {kind}")
+
+
 def init_db() -> None:
     """Create the tables, and fail any scan that was cut off by a restart."""
     with connect() as db:
         db.executescript(SCHEMA)
 
-        # databases made before browser IDs won't have this column yet
-        columns = [row["name"] for row in db.execute("PRAGMA table_info(scans)")]
-        if "client_id" not in columns:
-            db.execute("ALTER TABLE scans ADD COLUMN client_id TEXT")
+        # older databases won't have these columns yet
+        add_missing_column(db, "scans", "client_id", "TEXT")
+        add_missing_column(db, "suggestions", "attempts", "INTEGER NOT NULL DEFAULT 1")
+        add_missing_column(db, "decisions", "final_verdict", "TEXT")
 
         db.execute(
             "UPDATE scans SET status = 'failed', error = 'Server restarted during scan' "
@@ -186,6 +204,7 @@ def _to_suggestion(row: sqlite3.Row) -> SuggestionResponse:
         scan_id=row["scan_id"],
         group_key=row["group_key"],
         model=row["model"],
+        attempts=row["attempts"],
         suggestion=FixSuggestion(**json.loads(row["suggestion_json"])),
         validation=ValidationResult(**json.loads(row["validation_json"])),
     )
@@ -198,6 +217,40 @@ def get_suggestion(scan_id: int, group_key: str) -> SuggestionResponse | None:
             (scan_id, group_key),
         ).fetchone()
     return _to_suggestion(row) if row else None
+
+
+def get_suggestion_by_id(suggestion_id: int) -> SuggestionResponse | None:
+    with connect() as db:
+        row = db.execute("SELECT * FROM suggestions WHERE id = ?", (suggestion_id,)).fetchone()
+    return _to_suggestion(row) if row else None
+
+
+def replace_suggestion(
+    suggestion_id: int,
+    suggestion: FixSuggestion,
+    validation: ValidationResult,
+    reason: str | None,
+) -> SuggestionResponse:
+    """
+    Swap in a new attempt, keeping the old one and its decision so the
+    evaluation still counts what got rejected.
+    """
+    with connect() as db:
+        db.execute(
+            "INSERT INTO retired_attempts "
+            "(suggestion_id, rule_id, occurrences, suggestion_json, validation_json, decision, reason) "
+            "SELECT s.id, s.rule_id, s.occurrences, s.suggestion_json, s.validation_json, "
+            "d.decision, COALESCE(d.reason, ?) "
+            "FROM suggestions s LEFT JOIN decisions d ON d.suggestion_id = s.id WHERE s.id = ?",
+            (reason, suggestion_id),
+        )
+        db.execute("DELETE FROM decisions WHERE suggestion_id = ?", (suggestion_id,))
+        db.execute(
+            "UPDATE suggestions SET suggestion_json = ?, validation_json = ?, "
+            "attempts = attempts + 1 WHERE id = ?",
+            (suggestion.model_dump_json(), validation.model_dump_json(), suggestion_id),
+        )
+    return get_suggestion_by_id(suggestion_id)
 
 
 def save_suggestion(
@@ -241,17 +294,20 @@ def save_decision(suggestion_id: int, decision: DecisionRequest) -> DecisionResp
     """Save my decision. Deciding again on a suggestion replaces the old one."""
     with connect() as db:
         db.execute(
-            "INSERT INTO decisions (suggestion_id, decision, final_html, reason, seconds_spent) "
-            "VALUES (?, ?, ?, ?, ?) "
+            "INSERT INTO decisions "
+            "(suggestion_id, decision, final_html, reason, seconds_spent, final_verdict) "
+            "VALUES (?, ?, ?, ?, ?, ?) "
             "ON CONFLICT (suggestion_id) DO UPDATE SET "
             "decision = excluded.decision, final_html = excluded.final_html, "
-            "reason = excluded.reason, seconds_spent = excluded.seconds_spent",
+            "reason = excluded.reason, seconds_spent = excluded.seconds_spent, "
+            "final_verdict = excluded.final_verdict",
             (
                 suggestion_id,
                 decision.decision,
                 decision.final_html,
                 decision.reason,
                 decision.seconds_spent,
+                decision.final_verdict,
             ),
         )
         row = db.execute(
@@ -264,6 +320,7 @@ def save_decision(suggestion_id: int, decision: DecisionRequest) -> DecisionResp
         final_html=row["final_html"],
         reason=row["reason"],
         seconds_spent=row["seconds_spent"],
+        final_verdict=row["final_verdict"],
     )
 
 
@@ -298,7 +355,11 @@ def get_evaluation_rows(client_id: str) -> tuple[int, list[sqlite3.Row]]:
         rows = db.execute(
             "SELECT s.rule_id, s.occurrences, s.validation_json, d.decision "
             "FROM suggestions s JOIN scans c ON c.id = s.scan_id "
-            "LEFT JOIN decisions d ON d.suggestion_id = s.id WHERE c.client_id = ?",
-            (client_id,),
+            "LEFT JOIN decisions d ON d.suggestion_id = s.id WHERE c.client_id = ? "
+            "UNION ALL "
+            "SELECT r.rule_id, r.occurrences, r.validation_json, r.decision "
+            "FROM retired_attempts r JOIN suggestions s ON s.id = r.suggestion_id "
+            "JOIN scans c ON c.id = s.scan_id WHERE c.client_id = ?",
+            (client_id, client_id),
         ).fetchall()
     return scans, rows
