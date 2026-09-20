@@ -40,11 +40,11 @@ RULE_HINTS = {
         "and put that role's job on a wrapper. For role=navigation use "
         "<nav aria-label=...><ul ...>...</ul></nav>."
     ),
-    "select-name": (
-        "Base the label on what the options have in common, like Subject or Program type. "
+        "select-name": (
+        "Base the label only on what the options have in common. "
         "If the options don't make the purpose clear, use a placeholder like "
         "[DESCRIBE THE DROPDOWN] and set needs_human_input to true. "
-        "Never use a generic label like Select option or Dropdown."
+        "Never use a generic label, and never guess a purpose the options don't support."
     ),
     "html-has-lang": (
         "Add a lang attribute to the html opening tag and return only that tag. "
