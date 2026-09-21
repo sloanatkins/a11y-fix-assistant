@@ -18,7 +18,7 @@ from pydantic import ValidationError
 
 from app.models import AxeIssue
 from app.models import FixSuggestion
-from app.suggester import FIX_SCHEMA, apply_guards, suggest_fix
+from app.suggester import FIX_SCHEMA, apply_guards, complete_fragment, suggest_fix
 
 ISSUE = AxeIssue(
     rule_id="frame-title",
@@ -194,3 +194,58 @@ def test_retry_tells_the_model_what_went_wrong():
     message = client.calls[0]["messages"][1]["content"]
     assert "<old>" in message
     assert "label too vague" in message
+
+
+def make_fix(html, target="element"):
+    return FixSuggestion(
+        explanation="x",
+        fix_target=target,
+        fixed_html=html,
+        needs_human_input=False,
+        human_input_reason="",
+    )
+
+
+def test_opening_tag_gets_its_options_back():
+    issue = ISSUE.model_copy(
+        update={"rule_id": "select-name", "html": '<select name="branch"><option>A</option></select>'}
+    )
+    fixed = complete_fragment(issue, make_fix('<select name="branch" aria-label="Branch">'))
+    assert fixed.fixed_html == '<select name="branch" aria-label="Branch"><option>A</option></select>'
+
+
+def test_complete_fix_and_parent_fix_are_left_alone():
+    issue = ISSUE.model_copy(update={"html": "<p>Text</p>"})
+    whole = make_fix('<p style="color:#000">Text</p>')
+    assert complete_fragment(issue, whole).fixed_html == whole.fixed_html
+    parent = make_fix("<nav>", target="parent")
+    assert complete_fragment(issue, parent).fixed_html == "<nav>"
+
+
+def test_opening_tag_with_arrow_in_attribute_is_handled():
+    issue = ISSUE.model_copy(update={"html": '<p title="a>b">Text</p>'})
+    fixed = complete_fragment(issue, make_fix('<p title="a>b" style="color:#000">'))
+    assert fixed.fixed_html == '<p title="a>b" style="color:#000">Text</p>'
+
+
+@pytest.mark.parametrize(
+    "html, label",
+    [('<input type="text" name="q">', "q"), ('<textarea name="details"></textarea>', "details")],
+)
+def test_label_copied_from_a_code_name_gets_flagged(html, label):
+    issue = ISSUE.model_copy(update={"rule_id": "label", "html": html})
+    result = apply_guards(issue, make_fix(f'<input aria-label="{label}">'))
+    assert result.needs_human_input is True
+    assert "plain words" in result.human_input_reason
+
+
+def test_plain_word_label_is_left_alone():
+    issue = ISSUE.model_copy(update={"rule_id": "label", "html": '<input name="q">'})
+    assert apply_guards(issue, make_fix('<input aria-label="Search the catalog">')).needs_human_input is False
+
+
+def test_shortened_attribute_gets_a_specific_warning():
+    issue = ISSUE.model_copy(update={"html": '<iframe srcdoc="<!doctype html><html...">'})
+    result = apply_guards(issue, make_fix('<iframe srcdoc="<!doctype html><html..." title="Map">'))
+    assert result.needs_human_input is True
+    assert "shortened" in result.human_input_reason

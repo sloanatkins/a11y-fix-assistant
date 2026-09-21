@@ -1,0 +1,131 @@
+{
+  "bakery/9322cf415709": {
+    "decision": "edited",
+    "final_html": "<button class=\"icon-button\" type=\"button\" aria-label=\"Save to favorites\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M10 17 3 10a4 4 0 0 1 7-4 4 4 0 0 1 7 4z\" fill=\"#d9542b\"></path></svg></button>"
+  },
+  "bakery/3dcda3d730d6": {
+    "decision": "used"
+  },
+  "bakery/18d168f6dadd": {
+    "decision": "used"
+  },
+  "bakery/bffcc94797aa": {
+    "decision": "used"
+  },
+  "bakery/8b1e4deebba4": {
+    "decision": "used"
+  },
+  "bakery/479844935732": {
+    "decision": "used"
+  },
+  "bakery/ae10e076ff77": {
+    "decision": "used"
+  },
+  "bakery/98358de1fe1d": {
+    "decision": "used"
+  },
+  "bakery/25e986970d88": {
+    "decision": "rejected",
+    "reason": "repeats the headline instead of describing the image"
+  },
+  "bakery/5aa22323eb9b": {
+    "decision": "used"
+  },
+  "bakery/6cf9cfb03a14": {
+    "decision": "used"
+  },
+  "bakery/4749dd8bcc45": {
+    "decision": "used"
+  },
+  "bakery/b917d9917126": {
+    "decision": "used"
+  },
+  "bakery/5081d5592248": {
+    "decision": "edited",
+    "final_html": "<a href=\"#photos\"><img src=\"instagram.svg\" width=\"26\" height=\"26\" alt=\"Photos on Instagram\"></a>"
+  },
+  "bakery/cc1bc67de59b": {
+    "decision": "edited",
+    "final_html": "<a href=\"#sourdough\"><img src=\"sourdough.svg\" width=\"480\" height=\"360\" alt=\"Country sourdough\"></a>"
+  },
+  "bakery/c1a798696d7a": {
+    "decision": "used"
+  },
+  "bakery/1505daedf845": {
+    "decision": "used"
+  },
+  "clinic/341b6c2faebb": {
+    "decision": "used"
+  },
+  "clinic/4d829fd32858": {
+    "decision": "edited",
+    "final_html": "<button class=\"send\" type=\"submit\" style=\"background:#0f5c5a;\">Request appointment</button>"
+  },
+  "clinic/37276cdcac42": {
+    "decision": "edited",
+    "final_html": "title=\"Map showing Harbor Family Clinic at 40 Harbor Road\""
+  },
+  "clinic/ae10e076ff77": {
+    "decision": "used"
+  },
+  "clinic/ff7bc48f8805": {
+    "decision": "edited",
+    "final_html": "<img src=\"phone.svg\" width=\"44\" height=\"44\" alt=\"Call Harbor Family Clinic\">"
+  },
+  "clinic/fe06e520658d": {
+    "decision": "used"
+  },
+  "clinic/909902d5040d": {
+    "decision": "edited",
+    "final_html": "<label for=\"phone\">Phone number</label> <input id=\"phone\" type=\"tel\" name=\"phone\">"
+  },
+  "clinic/d083901f1106": {
+    "decision": "edited",
+    "final_html": "<label for=\"details\">What brings you in?</label> <textarea id=\"details\" name=\"details\" rows=\"4\"></textarea>"
+  },
+  "clinic/382ff38a0f45": {
+    "decision": "used"
+  },
+  "clinic/f7218544257b": {
+    "decision": "used"
+  },
+  "library/c466ca186178": {
+    "decision": "used"
+  },
+  "library/3224a9e86a59": {
+    "decision": "used"
+  },
+  "library/8e3dea1fd646": {
+    "decision": "used"
+  },
+  "library/a14619a1ac01": {
+    "decision": "used"
+  },
+  "library/c1d57e295682": {
+    "decision": "used"
+  },
+  "library/37b69fe0ee4e": {
+    "decision": "used"
+  },
+  "library/7de07b255c48": {
+    "decision": "used"
+  },
+  "library/25c032e7802f": {
+    "decision": "used"
+  },
+  "library/9b954bd80fec": {
+    "decision": "used"
+  },
+  "library/2c32e6c2d18f": {
+    "decision": "used"
+  },
+  "library/c24bbbc9b6a6": {
+    "decision": "used"
+  },
+  "library/fc91ceb7ad51": {
+    "decision": "used"
+  },
+  "library/86aab74bcc9a": {
+    "decision": "used"
+  }
+}

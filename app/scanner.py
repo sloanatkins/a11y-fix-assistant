@@ -152,8 +152,16 @@ def get_element_context(page: Page, target: list, rule_id: str) -> dict[str, str
             if (image) {
                 context.image_size = `${image.naturalWidth}x${image.naturalHeight}`;
             }
-            const nearby = el.parentElement?.textContent?.trim().slice(0, 200);
-            if (nearby) context.nearby_text = nearby;
+            // an image in a link has no text beside it, so walk up until we find some
+            let ancestor = el.parentElement;
+            for (let level = 0; ancestor && level < 4; level++) {
+                const nearby = ancestor.innerText.replace(/\\s+/g, " ").trim();
+                if (nearby) {
+                    context.nearby_text = nearby.slice(0, 200);
+                    break;
+                }
+                ancestor = ancestor.parentElement;
+            }
             return context;
         }""",
         target[0],

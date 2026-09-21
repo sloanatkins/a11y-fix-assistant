@@ -40,35 +40,39 @@ RULE_HINTS = {
         "and put that role's job on a wrapper. For role=navigation use "
         "<nav aria-label=...><ul ...>...</ul></nav>."
     ),
-        "select-name": (
-        "Base the label only on what the options have in common. "
+    "select-name": (
+        "Base the label on what the options have in common, like Subject or Program type. "
         "If the options don't make the purpose clear, use a placeholder like "
         "[DESCRIBE THE DROPDOWN] and set needs_human_input to true. "
-        "Never use a generic label, and never guess a purpose the options don't support."
+        "Never use a generic label like Select option or Dropdown."
     ),
     "html-has-lang": (
         "Add a lang attribute to the html opening tag and return only that tag. "
         "Use the language the nearby text or attributes suggest, otherwise lang=\"en\"."
     ),
     "image-alt": (
-        "You can't see the image. If the file name or a very small size shows it's only "
-        "decoration, like a border or spacer, use alt=\"\". If the link, file name, or nearby "
-        "text clearly says what it shows, describe that. Otherwise use "
-        "alt=\"[DESCRIBE THE IMAGE]\". Always set needs_human_input to true."
+        "You can't see the image, but use its file name and nearby text as evidence. "
+        "If the image is only decoration, like a border or spacer, use alt=\"\". "
+        "If the file name or nearby text clearly identifies it, use that wording, and use the "
+        "name of the item if the image is part of a product or book card. "
+        "Only use alt=\"[DESCRIBE THE IMAGE]\" when there's no evidence. "
+        "Always set needs_human_input to true."
     ),
     "link-name": (
-        "Return the whole a element and keep its href. Put an alt attribute on its image, or an "
-        "aria-label on the link, based on the destination, image file name, and nearby text. "
-        "Never remove the a tag. If the purpose isn't clear, use "
-        "[DESCRIBE THE LINK]. Always set needs_human_input to true."
+        "Return the whole a element and keep its href. If the link only holds an image, add alt "
+        "text to the image. Otherwise add an aria-label. Base the name on the destination, file "
+        "name, and nearby text, using the item's name if it's part of a card. "
+        "Never remove the a tag. Only use [DESCRIBE THE LINK] when there's no evidence. "
+        "Always set needs_human_input to true."
     ),
     "button-name": (
-        "Add an aria-label that says what the button does, based only on its HTML. "
-        "If that's unclear, use [DESCRIBE THE BUTTON]."
+        "Add an aria-label that says what the button does, using its type, class, and nearby "
+        "text as evidence. If that's unclear, use [DESCRIBE THE BUTTON]."
     ),
     "label": (
-        "Add an aria-label based on the field's name, id, or placeholder. "
-        "If that's unclear, use [DESCRIBE THE FIELD]."
+        "Add an aria-label written in plain words a person would understand, based on the "
+        "field's name, id, or placeholder. Expand short or code-like names, and never copy one "
+        "as is. If the meaning is unclear, use [DESCRIBE THE FIELD]."
     ),
     "color-contrast": (
         "Use the suggested_color from the context as the color in the element's style attribute, "
@@ -81,6 +85,34 @@ RULE_HINTS = {
 }
 
 
+# ── Cleanup ──
+
+OPENING_TAG = re.compile(r"""<([a-zA-Z][\w-]*)(?:[^>"']|"[^"]*"|'[^']*')*>""")
+
+
+def complete_fragment(issue: AxeIssue, suggestion: FixSuggestion) -> FixSuggestion:
+    """
+    The model sometimes returns only the opening tag even when it was given
+    the whole element. Put the rest back, so a copied fix doesn't lose its
+    options or text. This only ever restores what was already in the HTML.
+
+    Returns:
+    --------
+    FixSuggestion with the complete element when that's possible
+    """
+    original = OPENING_TAG.match(issue.html)
+    fixed = OPENING_TAG.fullmatch(suggestion.fixed_html.strip())
+    if (
+        suggestion.fix_target != "element"
+        or not original
+        or not fixed
+        or original.group(1).lower() != fixed.group(1).lower()
+    ):
+        return suggestion
+    rest = issue.html[original.end():]
+    return suggestion.model_copy(update={"fixed_html": suggestion.fixed_html.strip() + rest})
+
+
 # ── Guards ──
 
 # these always need a person, no matter how sure the model sounds
@@ -90,6 +122,12 @@ REVIEW_RULES = {
     "html-has-lang": "Check that this is the page's main language.",
     "color-contrast": "Check this color against your brand colors.",
 }
+
+# axe shortens long attributes, like srcdoc="<!doctype html><html..."
+SHORTENED_ATTRIBUTE = re.compile(r'="[^"]*\.\.\."')
+
+ARIA_LABEL = re.compile(r'aria-label="([^"]*)"')
+CODE_ATTRIBUTE = re.compile(r'\b(?:name|id)="([^"]*)"')
 
 # labels like these pass axe but don't tell anyone what the control does
 GENERIC_LABEL = re.compile(
@@ -109,7 +147,14 @@ def apply_guards(issue: AxeIssue, suggestion: FixSuggestion) -> FixSuggestion:
     FixSuggestion, flagged for review if a guard tripped
     """
     reason = ""
-    if issue.rule_id == "frame-title":
+    label = ARIA_LABEL.search(suggestion.fixed_html)
+    code_names = CODE_ATTRIBUTE.findall(issue.html)
+
+    if SHORTENED_ATTRIBUTE.search(issue.html):
+        reason = "The original tag was shortened. Add only the new attribute to the real tag."
+    elif label and (label.group(1) in code_names or len(label.group(1).strip()) <= 2):
+        reason = "This label just repeats a code name. Write it in plain words."
+    elif issue.rule_id == "frame-title":
         reason = "Only a person can check what this frame shows."
     elif issue.rule_id in REVIEW_RULES:
         reason = REVIEW_RULES[issue.rule_id]
@@ -195,4 +240,5 @@ def suggest_fix(
                 raise
 
     data = json.loads(response.choices[0].message.content)
-    return apply_guards(issue, FixSuggestion.model_validate(data))
+    suggestion = complete_fragment(issue, FixSuggestion.model_validate(data))
+    return apply_guards(issue, suggestion)

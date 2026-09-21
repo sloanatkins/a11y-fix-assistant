@@ -8,10 +8,7 @@ Dependencies:
     - scripts.check_demo_sites
 """
 
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts.check_demo_sites import EXPECTED_RULES, scan_sites
 

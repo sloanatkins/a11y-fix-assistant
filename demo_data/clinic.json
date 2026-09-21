@@ -1,0 +1,492 @@
+{
+  "site": "clinic",
+  "title": "Harbor Family Clinic",
+  "url": "/demo-sites/clinic/index.html",
+  "groups": [
+    {
+      "key": "341b6c2faebb",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": ".note",
+        "target": [
+          ".note"
+        ],
+        "html": "<p class=\"note\">We usually reply within one business day.</p>",
+        "parent_html": "<section></section>",
+        "options": [],
+        "context": {
+          "text_color": "#94bdb8",
+          "background_color": "#eaf6f3",
+          "current_ratio": "1.85",
+          "required_ratio": "4.5",
+          "suggested_color": "#5a7370"
+        }
+      }
+    },
+    {
+      "key": "4d829fd32858",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "button",
+        "target": [
+          "button"
+        ],
+        "html": "<button class=\"send\" type=\"submit\">Request appointment</button>",
+        "parent_html": "<form action=\"#\"></form>",
+        "options": [],
+        "context": {
+          "text_color": "#ffffff",
+          "background_color": "#79c4bc",
+          "current_ratio": "2.01",
+          "required_ratio": "4.5",
+          "suggested_color": "#474747"
+        }
+      }
+    },
+    {
+      "key": "37276cdcac42",
+      "rule_id": "frame-title",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Frames must have an accessible name",
+      "count": 1,
+      "example": {
+        "rule_id": "frame-title",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Frames must have an accessible name",
+        "selector": "iframe",
+        "target": [
+          "iframe"
+        ],
+        "html": "<iframe class=\"map\" srcdoc=\"<!doctype html><html...\">",
+        "parent_html": "<section></section>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "ae10e076ff77",
+      "rule_id": "html-has-lang",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "<html> element must have a lang attribute",
+      "count": 1,
+      "example": {
+        "rule_id": "html-has-lang",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "<html> element must have a lang attribute",
+        "selector": "html",
+        "target": [
+          "html"
+        ],
+        "html": "<html>",
+        "parent_html": "",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "ff7bc48f8805",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"phone.svg\"]",
+        "target": [
+          "img[src$=\"phone.svg\"]"
+        ],
+        "html": "<img src=\"phone.svg\" width=\"44\" height=\"44\">",
+        "parent_html": "<a href=\"#call\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/clinic/phone.svg",
+          "image_size": "150x150",
+          "nearby_text": "Harbor Family Clinic"
+        }
+      }
+    },
+    {
+      "key": "fe06e520658d",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"doctor.svg\"]",
+        "target": [
+          "img[src$=\"doctor.svg\"]"
+        ],
+        "html": "<img src=\"doctor.svg\" width=\"120\" height=\"120\">",
+        "parent_html": "<div class=\"team\"></div>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/clinic/doctor.svg",
+          "image_size": "150x150",
+          "nearby_text": "Meet Dr. Rivera Caring for families in this neighborhood for twelve years."
+        }
+      }
+    },
+    {
+      "key": "909902d5040d",
+      "rule_id": "label",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "count": 1,
+      "example": {
+        "rule_id": "label",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Form elements must have labels",
+        "selector": "input[type=\"tel\"]",
+        "target": [
+          "input[type=\"tel\"]"
+        ],
+        "html": "<input type=\"tel\" name=\"phone\">",
+        "parent_html": "<form action=\"#\"></form>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "d083901f1106",
+      "rule_id": "label",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "count": 1,
+      "example": {
+        "rule_id": "label",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Form elements must have labels",
+        "selector": "textarea",
+        "target": [
+          "textarea"
+        ],
+        "html": "<textarea name=\"details\" rows=\"4\"></textarea>",
+        "parent_html": "<form action=\"#\"></form>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "382ff38a0f45",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a",
+        "target": [
+          "a"
+        ],
+        "html": "<a href=\"#call\"><img src=\"phone.svg\" width=\"44\" height=\"44\"></a>",
+        "parent_html": "<header></header>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/clinic/index.html#call",
+          "image_url": "/demo-sites/clinic/phone.svg",
+          "image_size": "150x150",
+          "nearby_text": "Harbor Family Clinic"
+        }
+      }
+    },
+    {
+      "key": "f7218544257b",
+      "rule_id": "select-name",
+      "level": "tested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Select element must have an accessible name",
+      "count": 1,
+      "example": {
+        "rule_id": "select-name",
+        "level": "tested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Select element must have an accessible name",
+        "selector": "select",
+        "target": [
+          "select"
+        ],
+        "html": "<select name=\"visit_type\"><option>Annual checkup</option><option>Sick visit</option><option>Vaccination</option></select>",
+        "parent_html": "<form action=\"#\"></form>",
+        "options": [
+          "Annual checkup",
+          "Sick visit",
+          "Vaccination"
+        ],
+        "context": {}
+      }
+    },
+    {
+      "key": "3c80acd5244c",
+      "rule_id": "frame-tested",
+      "level": "report_only",
+      "status": "needs_review",
+      "impact": "critical",
+      "help": "Frames should be tested with axe-core",
+      "count": 1,
+      "example": {
+        "rule_id": "frame-tested",
+        "level": "report_only",
+        "status": "needs_review",
+        "impact": "critical",
+        "help": "Frames should be tested with axe-core",
+        "selector": "iframe",
+        "target": [
+          "iframe"
+        ],
+        "html": "<iframe class=\"map\" srcdoc=\"<!doctype html><html...\">",
+        "parent_html": "<section></section>",
+        "options": [],
+        "context": {}
+      }
+    }
+  ],
+  "suggestions": {
+    "341b6c2faebb": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The paragraph text has insufficient contrast, making it hard for users with visual impairments to read.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"note\" style=\"color: #5a7370;\">We usually reply within one business day.</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "4d829fd32858": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The button text color does not have sufficient contrast against its background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<button class=\"send\" type=\"submit\" style=\"color:#474747;\">Request appointment</button>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "37276cdcac42": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The iframe lacks a title attribute, so screen readers cannot convey its purpose to users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<iframe class=\"map\" srcdoc=\"<!doctype html><html...\" title=\"[DESCRIBE THE MAP]\">",
+        "needs_human_input": true,
+        "human_input_reason": "The original tag was shortened. Add only the new attribute to the real tag."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "The original tag was shortened. Add only the new attribute to the real tag.",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": true
+      }
+    },
+    "ae10e076ff77": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <html> tag lacks a lang attribute, which prevents assistive technologies and browsers from knowing the page language, affecting screen\u2011reader pronunciation and translation tools.",
+        "fix_target": "element",
+        "fixed_html": "<html lang=\"en\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this is the page's main language."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this is the page's main language.",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "ff7bc48f8805": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen readers cannot convey its purpose to users who cannot see it.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"phone.svg\" width=\"44\" height=\"44\" alt=\"Phone\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "fe06e520658d": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen reader users cannot understand its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"doctor.svg\" width=\"120\" height=\"120\" alt=\"Dr. Rivera\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "909902d5040d": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The telephone input lacks an accessible label, so users of assistive technology cannot determine its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<input type=\"tel\" name=\"phone\" aria-label=\"Phone number\">",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "d083901f1106": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The textarea has no accessible label, so screen reader users cannot know its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<textarea name=\"details\" rows=\"4\" aria-label=\"Details\"></textarea>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "382ff38a0f45": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alt text, so it has no accessible name for screen\u2011reader users.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#call\"><img src=\"phone.svg\" width=\"44\" height=\"44\" alt=\"Call Harbor Family Clinic\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "f7218544257b": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The select element lacks an accessible name, so screen reader users cannot determine its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<select name=\"visit_type\" aria-label=\"Visit type\"><option>Annual checkup</option><option>Sick visit</option><option>Vaccination</option></select>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    }
+  }
+}

@@ -188,3 +188,18 @@ def test_link_fix_that_keeps_the_link_passes(color_env):
     result = validate_fix(browser, url, link, fix(fixed))
     assert result.applied is True
     assert result.rule_after == result.rule_before - 1
+
+
+def test_image_inside_a_link_finds_nearby_text(tmp_path):
+    page_file = tmp_path / "card.html"
+    page_file.write_text(
+        '<!doctype html><html lang="en"><head><title>T</title></head><body><main><h1>x</h1>'
+        '<article><a href="#a"><img src="a.png"></a><h3>Country sourdough</h3></article>'
+        "</main></body></html>"
+    )
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        scan = scan_page(browser, page_file.as_uri())
+        browser.close()
+    image = next(i for i in scan.issues if i.rule_id == "image-alt")
+    assert "Country sourdough" in image.context["nearby_text"]
