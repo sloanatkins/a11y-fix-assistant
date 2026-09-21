@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { retrySuggestion, saveDecision, testEdit } from "../api";
 import type { Decision, Suggestion, Validation } from "../api";
+import { isDemoMode } from "../demo";
 import { DECISION_LABELS, VERDICT_LABELS } from "../labels";
 
 type DecisionFormProps = {
@@ -85,7 +86,8 @@ function DecisionForm({
     }
   }
 
-  const canRetry = decision === "rejected" && savedAs === "rejected" && attempts < MAX_ATTEMPTS;
+  const demo = isDemoMode();
+  const canRetry = !demo && decision === "rejected" && savedAs === "rejected" && attempts < MAX_ATTEMPTS;
 
   return (
     <form className="decision-form" onSubmit={handleSubmit}>
@@ -123,14 +125,16 @@ function DecisionForm({
               setEditResult(null);
             }}
           />
-          <button
-            type="button"
-            className="secondary"
-            onClick={handleTestEdit}
-            disabled={isTesting || !finalHtml.trim()}
-          >
-            {isTesting ? "Testing your edit..." : "Test my edit"}
-          </button>
+          {!demo && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={handleTestEdit}
+              disabled={isTesting || !finalHtml.trim()}
+            >
+              {isTesting ? "Testing your edit..." : "Test my edit"}
+            </button>
+          )}
           <div role="status">
             {editResult && (
               <p className={`message ${editResult.verdict === "passed" ? "success" : "error"}`}>
@@ -156,7 +160,7 @@ function DecisionForm({
       )}
 
       <button type="submit" disabled={isSaving}>
-        {isSaving ? "Saving..." : "Save decision"}
+        {isSaving ? "Saving..." : demo ? "Mark decision" : "Save decision"}
       </button>
 
       {error && (
@@ -166,7 +170,9 @@ function DecisionForm({
       )}
       <div role="status">
         {savedAs && (
-          <p className="message success">Saved: {DECISION_LABELS[savedAs]}.</p>
+          <p className="message success">
+            {demo ? "Marked" : "Saved"}: {DECISION_LABELS[savedAs]}.
+          </p>
         )}
       </div>
 
@@ -180,7 +186,7 @@ function DecisionForm({
           </span>
         </div>
       )}
-      {decision === "rejected" && savedAs === "rejected" && attempts >= MAX_ATTEMPTS && (
+      {!demo && decision === "rejected" && savedAs === "rejected" && attempts >= MAX_ATTEMPTS && (
         <p className="caveat">All {MAX_ATTEMPTS} attempts are used, so this one is yours to fix.</p>
       )}
     </form>

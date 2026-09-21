@@ -1129,3 +1129,77 @@ button.secondary:disabled {
 .field > div[role="status"] .message {
   margin-top: 0;
 }
+
+/* ── Demo mode ── */
+
+.demo-banner {
+  max-width: none;
+  margin: 0;
+  padding: 10px 48px;
+  background: var(--marker);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.examples {
+  margin: 0;
+  padding: 0;
+  border-top: 3px solid var(--ink);
+  list-style: none;
+}
+
+.examples li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 20px 8px 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.examples li:hover {
+  background: var(--surface);
+}
+
+.example-count {
+  color: var(--cobalt);
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.example-text {
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+}
+
+.example-text a {
+  font-size: 22px;
+  font-weight: 750;
+}
+
+/* makes the whole row clickable, while the link stays the real target */
+.example-text a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 900px) {
+  .demo-banner {
+    padding: 10px 16px;
+  }
+
+  .examples li {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .example-count {
+    font-size: 32px;
+  }
+}

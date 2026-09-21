@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Fictional site with planted accessibility problems, used only to demo the tool. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alder Street Library catalog</title>
+<style>
+@font-face { font-family: "Literata"; src: url("../fonts/literata-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, Arial, sans-serif; color: #26233f; background: #f7f3ea; }
+header { padding: 24px clamp(20px, 5vw, 64px) 72px; background: #26233f; color: #f7f3ea; }
+.bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.name { font-family: Literata, Georgia, serif; font-size: 22px; font-weight: 700; }
+header nav a { margin-left: 20px; color: #f7f3ea; }
+h1 { max-width: 15em; margin: 56px 0 0; font-family: Literata, Georgia, serif; font-size: clamp(38px, 5.5vw, 68px); line-height: 1.05; font-weight: 650; letter-spacing: -.02em; }
+main { max-width: 1120px; margin: -36px auto 0; padding: 0 clamp(20px, 5vw, 64px) 64px; }
+.search { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; padding: 16px; border-radius: 8px; background: #e8c34a; }
+.search input, .search select { width: 100%; height: 52px; padding: 0 14px; border: 0; border-radius: 4px; background: #fff; color: #26233f; font: inherit; }
+.search-button { display: grid; place-items: center; width: 56px; height: 52px; border: 0; border-radius: 4px; background: #26233f; cursor: pointer; }
+h2 { margin: 48px 0 20px; font-family: Literata, Georgia, serif; font-size: 32px; font-weight: 650; }
+.books { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 4vw, 48px); }
+.books a, .books img { display: block; }
+.books img { width: 100%; box-shadow: 6px 8px 0 rgba(38, 35, 63, .18); }
+h3 { margin: 18px 0 2px; font-family: Literata, Georgia, serif; font-size: 22px; }
+.status { margin: 0; color: #a8a18f; font-weight: 500; }
+.pagination { display: flex; gap: 8px; margin: 48px 0 0; padding: 0; list-style: none; }
+.pagination li { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 4px; }
+.pagination a { display: grid; place-items: center; width: 100%; height: 100%; border: 1px solid #26233f; border-radius: 4px; color: #26233f; text-decoration: none; }
+.current { background: #26233f; color: #f7f3ea; font-weight: 700; }
+footer { padding: 24px clamp(20px, 5vw, 64px); border-top: 1px solid #cfc8b6; }
+@media (max-width: 760px) { .search { grid-template-columns: 1fr; } .search-button { width: 100%; } .books { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="name">Alder Street Library</span>
+    <nav aria-label="Main"><a href="#catalog">Catalog</a><a href="#events">Events</a><a href="#hours">Hours</a></nav>
+  </div>
+  <h1>Find your next book, or the one you forgot to return</h1>
+</header>
+<main id="catalog">
+  <form class="search" action="#catalog">
+    <input type="text" name="q">
+    <select name="format"><option>Any format</option><option>Print</option><option>Audiobook</option><option>Large print</option></select>
+    <select name="branch"><option>All branches</option><option>Alder Street</option><option>Riverside</option><option>Hilltop</option></select>
+    <button class="search-button" type="submit"><svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="#fff" stroke-width="2"/><path d="m12.5 12.5 5 5" stroke="#fff" stroke-width="2"/></svg></button>
+  </form>
+  <h2>New this month</h2>
+  <div class="books">
+    <article><a href="#book1"><img src="book1.svg" width="300" height="430"></a><h3>The Quiet Harbor</h3><p class="status">Available</p></article>
+    <article><a href="#book2"><img src="book2.svg" width="300" height="430"></a><h3>Field Notes</h3><p class="status">2 holds</p></article>
+    <article><a href="#book3"><img src="book3.svg" width="300" height="430"></a><h3>Maps of Home</h3><p class="status">Available</p></article>
+  </div>
+  <ul class="pagination" role="navigation" aria-label="Pagination">
+    <li class="current">1</li>
+    <li><a href="#page2">2</a></li>
+    <li><a href="#page3">3</a></li>
+    <li><a href="#page4">4</a></li>
+    <li><a href="#page5">5</a></li>
+  </ul>
+</main>
+<footer id="hours"><p>Fictional library, created for a software demo.</p></footer>
+</body>
+</html>

@@ -6,6 +6,7 @@ import CodeBlock from "../components/CodeBlock";
 import DecisionForm from "../components/DecisionForm";
 import IssueClues from "../components/IssueClues";
 import LevelBadge from "../components/LevelBadge";
+import { isDemoMode } from "../demo";
 import { getRuleTip, VERDICT_LABELS } from "../labels";
 
 function ReviewPage() {
@@ -129,7 +130,7 @@ function ReviewPage() {
             {isSuggesting ? "Drafting and testing a fix..." : "Get suggested fix"}
           </button>
           <div role="status">
-            {isSuggesting && <p>This calls Groq, then tests the fix on a temporary page copy.</p>}
+            {isSuggesting && !isDemoMode() && <p>This calls Groq, then tests the fix on a temporary page copy.</p>}
           </div>
         </div>
       )}

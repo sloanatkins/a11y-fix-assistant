@@ -141,8 +141,16 @@ function ScanResultsPage() {
 
   return (
     <>
-      <h1>Scan results</h1>
-      <p className="url">{scan.final_url}</p>
+      <h1>{scan.title ?? "Scan results"}</h1>
+      {scan.title ? (
+        <p className="url">
+          <a href={scan.final_url ?? "#"} target="_blank" rel="noreferrer">
+            Open the example site in a new tab
+          </a>
+        </p>
+      ) : (
+        <p className="url">{scan.final_url}</p>
+      )}
       <p className="lede">
         The automated check flagged {total} {total === 1 ? "item" : "items"} across {scan.groups.length}{" "}
         {scan.groups.length === 1 ? "group" : "groups"}.

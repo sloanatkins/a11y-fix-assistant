@@ -1,6 +1,9 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { isDemoMode } from "../demo";
 
 function Layout() {
+  const demo = isDemoMode();
+
   return (
     <div className="shell">
       <a className="skip-link" href="#main-content">
@@ -12,7 +15,7 @@ function Layout() {
         </Link>
         <nav aria-label="Main">
           <NavLink to="/" end>
-            New scan
+            {demo ? "Examples" : "New scan"}
           </NavLink>
           <NavLink to="/evaluation">Evaluation</NavLink>
         </nav>
@@ -22,6 +25,12 @@ function Layout() {
         </p>
       </header>
       <main id="main-content" tabIndex={-1}>
+        {demo && (
+          <p className="demo-banner">
+            Demo with saved results. These sites are fictional, and your clicks reset when you
+            refresh.
+          </p>
+        )}
         <div className="content">
           <Outlet />
         </div>

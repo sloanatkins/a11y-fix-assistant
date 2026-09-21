@@ -1,0 +1,814 @@
+{
+  "site": "bakery",
+  "title": "Crumb and Copper Bakery",
+  "url": "/demo-sites/bakery/index.html",
+  "groups": [
+    {
+      "key": "9322cf415709",
+      "rule_id": "button-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Buttons must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "button-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Buttons must have discernible text",
+        "selector": "button",
+        "target": [
+          "button"
+        ],
+        "html": "<button class=\"icon-button\" type=\"button\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M10 17 3 10a4 4 0 0 1 7-4 4 4 0 0 1 7 4z\" fill=\"#d9542b\"></path></svg></button>",
+        "parent_html": "<div class=\"hero-copy\"></div>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "3dcda3d730d6",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": ".sale",
+        "target": [
+          ".sale"
+        ],
+        "html": "<p class=\"sale\">Saturday only: half off day-old loaves</p>",
+        "parent_html": "<div class=\"hero-copy\"></div>",
+        "options": [],
+        "context": {
+          "text_color": "#c0922a",
+          "background_color": "#f6c945",
+          "current_ratio": "1.8",
+          "required_ratio": "4.5",
+          "suggested_color": "#6d5318"
+        }
+      }
+    },
+    {
+      "key": "18d168f6dadd",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "article:nth-child(1) > .card-row > .price",
+        "target": [
+          "article:nth-child(1) > .card-row > .price"
+        ],
+        "html": "<p class=\"price\">$9</p>",
+        "parent_html": "<div class=\"card-row\"></div>",
+        "options": [],
+        "context": {
+          "text_color": "#b9a56f",
+          "background_color": "#fff7e6",
+          "current_ratio": "2.27",
+          "required_ratio": "4.5",
+          "suggested_color": "#7e704b"
+        }
+      }
+    },
+    {
+      "key": "bffcc94797aa",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "article:nth-child(2) > .card-row > .price",
+        "target": [
+          "article:nth-child(2) > .card-row > .price"
+        ],
+        "html": "<p class=\"price\">$5</p>",
+        "parent_html": "<div class=\"card-row\"></div>",
+        "options": [],
+        "context": {
+          "text_color": "#b9a56f",
+          "background_color": "#fff7e6",
+          "current_ratio": "2.27",
+          "required_ratio": "4.5",
+          "suggested_color": "#7e704b"
+        }
+      }
+    },
+    {
+      "key": "8b1e4deebba4",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "article:nth-child(3) > .card-row > .price",
+        "target": [
+          "article:nth-child(3) > .card-row > .price"
+        ],
+        "html": "<p class=\"price\">$34</p>",
+        "parent_html": "<div class=\"card-row\"></div>",
+        "options": [],
+        "context": {
+          "text_color": "#b9a56f",
+          "background_color": "#fff7e6",
+          "current_ratio": "2.27",
+          "required_ratio": "4.5",
+          "suggested_color": "#7e704b"
+        }
+      }
+    },
+    {
+      "key": "479844935732",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "small",
+        "target": [
+          "small"
+        ],
+        "html": "<small>Fictional business, created for a software demo.</small>",
+        "parent_html": "<footer id=\"visit\"></footer>",
+        "options": [],
+        "context": {
+          "text_color": "#567a66",
+          "background_color": "#1f3d2f",
+          "current_ratio": "2.47",
+          "required_ratio": "4.5",
+          "suggested_color": "#8ea698"
+        }
+      }
+    },
+    {
+      "key": "ae10e076ff77",
+      "rule_id": "html-has-lang",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "<html> element must have a lang attribute",
+      "count": 1,
+      "example": {
+        "rule_id": "html-has-lang",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "<html> element must have a lang attribute",
+        "selector": "html",
+        "target": [
+          "html"
+        ],
+        "html": "<html>",
+        "parent_html": "",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "98358de1fe1d",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"instagram.svg\"]",
+        "target": [
+          "img[src$=\"instagram.svg\"]"
+        ],
+        "html": "<img src=\"instagram.svg\" width=\"26\" height=\"26\">",
+        "parent_html": "<a href=\"#photos\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/instagram.svg",
+          "image_size": "150x150",
+          "nearby_text": "Menu Visit"
+        }
+      }
+    },
+    {
+      "key": "25e986970d88",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"hero.svg\"]",
+        "target": [
+          "img[src$=\"hero.svg\"]"
+        ],
+        "html": "<img src=\"hero.svg\" width=\"640\" height=\"520\">",
+        "parent_html": "<section class=\"hero\"></section>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/hero.svg",
+          "image_size": "185x150",
+          "nearby_text": "Bread baked before sunrise Small batches, long ferments, and a copper oven we refuse to replace. Saturday only: half off day-old loaves"
+        }
+      }
+    },
+    {
+      "key": "5aa22323eb9b",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": ".divider",
+        "target": [
+          ".divider"
+        ],
+        "html": "<img class=\"divider\" src=\"divider.svg\" width=\"1200\" height=\"24\">",
+        "parent_html": "<main></main>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/divider.svg",
+          "image_size": "300x6",
+          "nearby_text": "Bread baked before sunrise Small batches, long ferments, and a copper oven we refuse to replace. Saturday only: half off day-old loaves This week's menu Country sourdough $9 Three-day ferment and a da"
+        }
+      }
+    },
+    {
+      "key": "6cf9cfb03a14",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"sourdough.svg\"]",
+        "target": [
+          "img[src$=\"sourdough.svg\"]"
+        ],
+        "html": "<img src=\"sourdough.svg\" width=\"480\" height=\"360\">",
+        "parent_html": "<a href=\"#sourdough\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/sourdough.svg",
+          "image_size": "200x150",
+          "nearby_text": "Country sourdough $9 Three-day ferment and a dark, crackly crust."
+        }
+      }
+    },
+    {
+      "key": "4749dd8bcc45",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"croissant.svg\"]",
+        "target": [
+          "img[src$=\"croissant.svg\"]"
+        ],
+        "html": "<img src=\"croissant.svg\" width=\"480\" height=\"360\">",
+        "parent_html": "<a href=\"#croissant\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/croissant.svg",
+          "image_size": "200x150",
+          "nearby_text": "Butter croissant $5 Laminated overnight and gone by ten."
+        }
+      }
+    },
+    {
+      "key": "b917d9917126",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"cake.svg\"]",
+        "target": [
+          "img[src$=\"cake.svg\"]"
+        ],
+        "html": "<img src=\"cake.svg\" width=\"480\" height=\"360\">",
+        "parent_html": "<a href=\"#cake\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/bakery/cake.svg",
+          "image_size": "200x150",
+          "nearby_text": "Lemon layer cake $34 Order two days ahead. Serves ten, or one very sad person."
+        }
+      }
+    },
+    {
+      "key": "5081d5592248",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#photos\"]",
+        "target": [
+          "a[href$=\"#photos\"]"
+        ],
+        "html": "<a href=\"#photos\"><img src=\"instagram.svg\" width=\"26\" height=\"26\"></a>",
+        "parent_html": "<nav aria-label=\"Main\"></nav>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/bakery/index.html#photos",
+          "image_url": "/demo-sites/bakery/instagram.svg",
+          "image_size": "150x150",
+          "nearby_text": "Menu Visit"
+        }
+      }
+    },
+    {
+      "key": "cc1bc67de59b",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#sourdough\"]",
+        "target": [
+          "a[href$=\"#sourdough\"]"
+        ],
+        "html": "<a href=\"#sourdough\"><img src=\"sourdough.svg\" width=\"480\" height=\"360\"></a>",
+        "parent_html": "<article class=\"card\"></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/bakery/index.html#sourdough",
+          "image_url": "/demo-sites/bakery/sourdough.svg",
+          "image_size": "200x150",
+          "nearby_text": "Country sourdough $9 Three-day ferment and a dark, crackly crust."
+        }
+      }
+    },
+    {
+      "key": "c1a798696d7a",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#croissant\"]",
+        "target": [
+          "a[href$=\"#croissant\"]"
+        ],
+        "html": "<a href=\"#croissant\"><img src=\"croissant.svg\" width=\"480\" height=\"360\"></a>",
+        "parent_html": "<article class=\"card\"></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/bakery/index.html#croissant",
+          "image_url": "/demo-sites/bakery/croissant.svg",
+          "image_size": "200x150",
+          "nearby_text": "Butter croissant $5 Laminated overnight and gone by ten."
+        }
+      }
+    },
+    {
+      "key": "1505daedf845",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#cake\"]",
+        "target": [
+          "a[href$=\"#cake\"]"
+        ],
+        "html": "<a href=\"#cake\"><img src=\"cake.svg\" width=\"480\" height=\"360\"></a>",
+        "parent_html": "<article class=\"card\"></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/bakery/index.html#cake",
+          "image_url": "/demo-sites/bakery/cake.svg",
+          "image_size": "200x150",
+          "nearby_text": "Lemon layer cake $34 Order two days ahead. Serves ten, or one very sad person."
+        }
+      }
+    }
+  ],
+  "suggestions": {
+    "9322cf415709": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The button contains only an icon and no accessible name, so screen reader users cannot know its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<button class=\"icon-button\" type=\"button\" aria-label=\"[DESCRIBE THE BUTTON]\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M10 17 3 10a4 4 0 0 1 7-4 4 4 0 0 1 7 4z\" fill=\"#d9542b\"></path></svg></button>",
+        "needs_human_input": true,
+        "human_input_reason": "The button's purpose is not clear from the markup; a descriptive aria-label is needed."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "The button's purpose is not clear from the markup; a descriptive aria-label is needed.",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": true
+      }
+    },
+    "3dcda3d730d6": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The paragraph\u2019s text color does not provide sufficient contrast against its background, making it hard for users with visual impairments to read.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"sale\" style=\"color:#6d5318;\">Saturday only: half off day-old loaves</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 5,
+        "rule_after": 4,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "18d168f6dadd": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The price text does not have sufficient color contrast, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"price\" style=\"color: #7e704b;\">$9</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 5,
+        "rule_after": 4,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "bffcc94797aa": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text color does not provide enough contrast against its background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"price\" style=\"color: #7e704b;\">$5</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 5,
+        "rule_after": 4,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "8b1e4deebba4": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text color does not provide enough contrast against its background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"price\" style=\"color: #7e704b;\">$34</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 5,
+        "rule_after": 4,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "479844935732": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text color does not have enough contrast against its background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<small style=\"color: #8ea698;\">Fictional business, created for a software demo.</small>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 5,
+        "rule_after": 4,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "ae10e076ff77": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <html> element is missing a lang attribute, which prevents assistive technologies from knowing the page language and can hinder screen reader users.",
+        "fix_target": "element",
+        "fixed_html": "<html lang=\"en\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this is the page's main language."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this is the page's main language.",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "98358de1fe1d": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen readers cannot convey its purpose to users with visual impairments. Adding an appropriate alt attribute (e.g., \"Instagram\") informs users what the image represents.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"instagram.svg\" width=\"26\" height=\"26\" alt=\"Instagram\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "25e986970d88": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen reader users cannot understand its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"hero.svg\" width=\"640\" height=\"520\" alt=\"Bread baked before sunrise\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "5aa22323eb9b": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image is decorative and currently has no alternative text, so screen readers may announce it without meaning, affecting users who rely on alt text.",
+        "fix_target": "element",
+        "fixed_html": "<img class=\"divider\" src=\"divider.svg\" width=\"1200\" height=\"24\" alt=\"\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "6cf9cfb03a14": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen readers cannot convey its meaning to users who are blind. This affects users relying on assistive technology.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"sourdough.svg\" width=\"480\" height=\"360\" alt=\"Country sourdough\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "4749dd8bcc45": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen reader users cannot understand its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"croissant.svg\" width=\"480\" height=\"360\" alt=\"Butter croissant\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "b917d9917126": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, preventing screen reader users from understanding its content.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"cake.svg\" width=\"480\" height=\"360\" alt=\"Lemon layer cake\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 6,
+        "rule_after": 5,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "5081d5592248": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alt text, so screen reader users cannot know where the link goes.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#photos\"><img src=\"instagram.svg\" width=\"26\" height=\"26\" alt=\"Instagram link to photos\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 4,
+        "rule_after": 3,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "cc1bc67de59b": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alt text, so screen readers cannot determine its purpose, affecting users who rely on assistive technology.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#sourdough\"><img src=\"sourdough.svg\" width=\"480\" height=\"360\" alt=\"Sourdough\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 4,
+        "rule_after": 3,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "c1a798696d7a": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alternative text, so screen readers cannot determine its purpose, affecting users of assistive technology.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#croissant\"><img src=\"croissant.svg\" width=\"480\" height=\"360\" alt=\"Butter croissant\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 4,
+        "rule_after": 3,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "1505daedf845": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alternative text, so screen reader users cannot know where the link goes.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#cake\"><img src=\"cake.svg\" width=\"480\" height=\"360\" alt=\"Lemon layer cake\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 4,
+        "rule_after": 3,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    }
+  }
+}

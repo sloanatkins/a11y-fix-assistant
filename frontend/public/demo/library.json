@@ -1,0 +1,641 @@
+{
+  "site": "library",
+  "title": "Alder Street Library",
+  "url": "/demo-sites/library/index.html",
+  "groups": [
+    {
+      "key": "90e2b6030fbb",
+      "rule_id": "aria-allowed-role",
+      "level": "report_only",
+      "status": "violation",
+      "impact": "minor",
+      "help": "ARIA role should be appropriate for the element",
+      "count": 1,
+      "example": {
+        "rule_id": "aria-allowed-role",
+        "level": "report_only",
+        "status": "violation",
+        "impact": "minor",
+        "help": "ARIA role should be appropriate for the element",
+        "selector": "ul",
+        "target": [
+          "ul"
+        ],
+        "html": "<ul class=\"pagination\" role=\"navigation\" aria-label=\"Pagination\">\n    <li class=\"current\">1</li>\n    <li><a href=\"#page2\">2</a></li>\n    <li><a href=\"#page3\">3</a></li>\n    <li><a href=\"#page4\">4</a></li>\n    <li><a href=\"#page5\">5</a></li>\n  </ul>",
+        "parent_html": "<main id=\"catalog\"></main>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "c466ca186178",
+      "rule_id": "button-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Buttons must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "button-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Buttons must have discernible text",
+        "selector": "button",
+        "target": [
+          "button"
+        ],
+        "html": "<button class=\"search-button\" type=\"submit\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"5.5\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\"></circle><path d=\"m12.5 12.5 5 5\" stroke=\"#fff\" stroke-width=\"2\"></path></svg></button>",
+        "parent_html": "<form class=\"search\" action=\"#catalog\"></form>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "3224a9e86a59",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 2,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "article:nth-child(1) > .status",
+        "target": [
+          "article:nth-child(1) > .status"
+        ],
+        "html": "<p class=\"status\">Available</p>",
+        "parent_html": "<article></article>",
+        "options": [],
+        "context": {
+          "text_color": "#a8a18f",
+          "background_color": "#f7f3ea",
+          "current_ratio": "2.32",
+          "required_ratio": "4.5",
+          "suggested_color": "#726d61"
+        }
+      }
+    },
+    {
+      "key": "8e3dea1fd646",
+      "rule_id": "color-contrast",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "count": 1,
+      "example": {
+        "rule_id": "color-contrast",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "selector": "article:nth-child(2) > .status",
+        "target": [
+          "article:nth-child(2) > .status"
+        ],
+        "html": "<p class=\"status\">2 holds</p>",
+        "parent_html": "<article></article>",
+        "options": [],
+        "context": {
+          "text_color": "#a8a18f",
+          "background_color": "#f7f3ea",
+          "current_ratio": "2.32",
+          "required_ratio": "4.5",
+          "suggested_color": "#726d61"
+        }
+      }
+    },
+    {
+      "key": "a14619a1ac01",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"book1.svg\"]",
+        "target": [
+          "img[src$=\"book1.svg\"]"
+        ],
+        "html": "<img src=\"book1.svg\" width=\"300\" height=\"430\">",
+        "parent_html": "<a href=\"#book1\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/library/book1.svg",
+          "image_size": "105x150",
+          "nearby_text": "The Quiet Harbor Available"
+        }
+      }
+    },
+    {
+      "key": "c1d57e295682",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"book2.svg\"]",
+        "target": [
+          "img[src$=\"book2.svg\"]"
+        ],
+        "html": "<img src=\"book2.svg\" width=\"300\" height=\"430\">",
+        "parent_html": "<a href=\"#book2\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/library/book2.svg",
+          "image_size": "105x150",
+          "nearby_text": "Field Notes 2 holds"
+        }
+      }
+    },
+    {
+      "key": "37b69fe0ee4e",
+      "rule_id": "image-alt",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "count": 1,
+      "example": {
+        "rule_id": "image-alt",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Images must have alternative text",
+        "selector": "img[src$=\"book3.svg\"]",
+        "target": [
+          "img[src$=\"book3.svg\"]"
+        ],
+        "html": "<img src=\"book3.svg\" width=\"300\" height=\"430\">",
+        "parent_html": "<a href=\"#book3\"></a>",
+        "options": [],
+        "context": {
+          "image_url": "/demo-sites/library/book3.svg",
+          "image_size": "105x150",
+          "nearby_text": "Maps of Home Available"
+        }
+      }
+    },
+    {
+      "key": "7de07b255c48",
+      "rule_id": "label",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "count": 1,
+      "example": {
+        "rule_id": "label",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Form elements must have labels",
+        "selector": "input",
+        "target": [
+          "input"
+        ],
+        "html": "<input type=\"text\" name=\"q\">",
+        "parent_html": "<form class=\"search\" action=\"#catalog\"></form>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "25c032e7802f",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#book1\"]",
+        "target": [
+          "a[href$=\"#book1\"]"
+        ],
+        "html": "<a href=\"#book1\"><img src=\"book1.svg\" width=\"300\" height=\"430\"></a>",
+        "parent_html": "<article></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/library/index.html#book1",
+          "image_url": "/demo-sites/library/book1.svg",
+          "image_size": "105x150",
+          "nearby_text": "The Quiet Harbor Available"
+        }
+      }
+    },
+    {
+      "key": "9b954bd80fec",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#book2\"]",
+        "target": [
+          "a[href$=\"#book2\"]"
+        ],
+        "html": "<a href=\"#book2\"><img src=\"book2.svg\" width=\"300\" height=\"430\"></a>",
+        "parent_html": "<article></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/library/index.html#book2",
+          "image_url": "/demo-sites/library/book2.svg",
+          "image_size": "105x150",
+          "nearby_text": "Field Notes 2 holds"
+        }
+      }
+    },
+    {
+      "key": "2c32e6c2d18f",
+      "rule_id": "link-name",
+      "level": "suggested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "count": 1,
+      "example": {
+        "rule_id": "link-name",
+        "level": "suggested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "Links must have discernible text",
+        "selector": "a[href$=\"#book3\"]",
+        "target": [
+          "a[href$=\"#book3\"]"
+        ],
+        "html": "<a href=\"#book3\"><img src=\"book3.svg\" width=\"300\" height=\"430\"></a>",
+        "parent_html": "<article></article>",
+        "options": [],
+        "context": {
+          "link_url": "/demo-sites/library/index.html#book3",
+          "image_url": "/demo-sites/library/book3.svg",
+          "image_size": "105x150",
+          "nearby_text": "Maps of Home Available"
+        }
+      }
+    },
+    {
+      "key": "c24bbbc9b6a6",
+      "rule_id": "listitem",
+      "level": "tested",
+      "status": "violation",
+      "impact": "serious",
+      "help": "<li> elements must be contained in a <ul> or <ol>",
+      "count": 5,
+      "example": {
+        "rule_id": "listitem",
+        "level": "tested",
+        "status": "violation",
+        "impact": "serious",
+        "help": "<li> elements must be contained in a <ul> or <ol>",
+        "selector": ".current",
+        "target": [
+          ".current"
+        ],
+        "html": "<li class=\"current\">1</li>",
+        "parent_html": "<ul class=\"pagination\" role=\"navigation\" aria-label=\"Pagination\"></ul>",
+        "options": [],
+        "context": {}
+      }
+    },
+    {
+      "key": "fc91ceb7ad51",
+      "rule_id": "select-name",
+      "level": "tested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Select element must have an accessible name",
+      "count": 1,
+      "example": {
+        "rule_id": "select-name",
+        "level": "tested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Select element must have an accessible name",
+        "selector": "select[name=\"format\"]",
+        "target": [
+          "select[name=\"format\"]"
+        ],
+        "html": "<select name=\"format\"><option>Any format</option><option>Print</option><option>Audiobook</option><option>Large print</option></select>",
+        "parent_html": "<form class=\"search\" action=\"#catalog\"></form>",
+        "options": [
+          "Any format",
+          "Print",
+          "Audiobook",
+          "Large print"
+        ],
+        "context": {}
+      }
+    },
+    {
+      "key": "86aab74bcc9a",
+      "rule_id": "select-name",
+      "level": "tested",
+      "status": "violation",
+      "impact": "critical",
+      "help": "Select element must have an accessible name",
+      "count": 1,
+      "example": {
+        "rule_id": "select-name",
+        "level": "tested",
+        "status": "violation",
+        "impact": "critical",
+        "help": "Select element must have an accessible name",
+        "selector": "select[name=\"branch\"]",
+        "target": [
+          "select[name=\"branch\"]"
+        ],
+        "html": "<select name=\"branch\"><option>All branches</option><option>Alder Street</option><option>Riverside</option><option>Hilltop</option></select>",
+        "parent_html": "<form class=\"search\" action=\"#catalog\"></form>",
+        "options": [
+          "All branches",
+          "Alder Street",
+          "Riverside",
+          "Hilltop"
+        ],
+        "context": {}
+      }
+    }
+  ],
+  "suggestions": {
+    "c466ca186178": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The button contains only an SVG with no accessible name, so screen reader users cannot know its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<button class=\"search-button\" type=\"submit\" aria-label=\"Search\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"5.5\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\"></circle><path d=\"m12.5 12.5 5 5\" stroke=\"#fff\" stroke-width=\"2\"></path></svg></button>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "3224a9e86a59": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text color does not provide enough contrast against the background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"status\" style=\"color: #726d61;\">Available</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "8e3dea1fd646": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text color does not have enough contrast with the background, making it hard to read for users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<p class=\"status\" style=\"color: #726d61;\">2 holds</p>",
+        "needs_human_input": true,
+        "human_input_reason": "Check this color against your brand colors."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this color against your brand colors.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "a14619a1ac01": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image is missing alternative text, so screen reader users cannot know its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"book1.svg\" width=\"300\" height=\"430\" alt=\"[DESCRIBE THE IMAGE]\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": true
+      }
+    },
+    "c1d57e295682": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <img> element is missing an alt attribute, so screen reader users cannot understand its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"book2.svg\" width=\"300\" height=\"430\" alt=\"Field Notes 2 book cover\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "37b69fe0ee4e": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The image lacks alternative text, so screen readers cannot convey its purpose to users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<img src=\"book3.svg\" width=\"300\" height=\"430\" alt=\"Maps of Home\">",
+        "needs_human_input": true,
+        "human_input_reason": "Check this against the image. Use empty alt text only if it's decorative."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check this against the image. Use empty alt text only if it's decorative.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "7de07b255c48": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The text input lacks an accessible label, so screen reader users cannot determine its purpose.",
+        "fix_target": "element",
+        "fixed_html": "<input type=\"text\" name=\"q\" aria-label=\"Search\">",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 1,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "25c032e7802f": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alternative text, so screen readers cannot determine its purpose, affecting users who rely on assistive technology.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#book1\"><img src=\"book1.svg\" width=\"300\" height=\"430\" alt=\"The Quiet Harbor Available\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "9b954bd80fec": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alternative text, so screen readers cannot convey its purpose to users with visual impairments.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#book2\"><img src=\"book2.svg\" width=\"300\" height=\"430\" alt=\"Field Notes 2\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "2c32e6c2d18f": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The link contains only an image without alt text, so screen readers cannot determine its purpose, affecting users who rely on assistive technology.",
+        "fix_target": "element",
+        "fixed_html": "<a href=\"#book3\"><img src=\"book3.svg\" width=\"300\" height=\"430\" alt=\"Maps of Home Available\"></a>",
+        "needs_human_input": true,
+        "human_input_reason": "Check that this describes where the link goes."
+      },
+      "validation": {
+        "verdict": "needs_review",
+        "applied": true,
+        "detail": "Check that this describes where the link goes.",
+        "rule_before": 3,
+        "rule_after": 2,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "c24bbbc9b6a6": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <ul> has role=\"navigation\", which overrides its list semantics and makes the <li> not be recognized as a list item, affecting screen\u2011reader users. Removing the role and moving the navigation role to a <nav> wrapper restores proper list behavior.",
+        "fix_target": "parent",
+        "fixed_html": "<nav aria-label=\"Pagination\"><ul class=\"pagination\">...</ul></nav>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 5,
+        "rule_after": 0,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "fc91ceb7ad51": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <select> element has no accessible name, so screen reader users cannot know what it selects.",
+        "fix_target": "element",
+        "fixed_html": "<select name=\"format\" aria-label=\"Format\"><option>Any format</option><option>Print</option><option>Audiobook</option><option>Large print</option></select>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    },
+    "86aab74bcc9a": {
+      "model": "openai/gpt-oss-120b",
+      "suggestion": {
+        "explanation": "The <select> element lacks an accessible name, so screen reader users cannot determine its purpose. This prevents users of assistive technology from selecting a branch correctly.",
+        "fix_target": "element",
+        "fixed_html": "<select name=\"branch\" aria-label=\"Branch\"><option>All branches</option><option>Alder Street</option><option>Riverside</option><option>Hilltop</option></select>",
+        "needs_human_input": false,
+        "human_input_reason": ""
+      },
+      "validation": {
+        "verdict": "passed",
+        "applied": true,
+        "detail": "axe checks passed, but the wording still needs your review",
+        "rule_before": 2,
+        "rule_after": 1,
+        "new_violations": {},
+        "has_placeholder": false
+      }
+    }
+  }
+}

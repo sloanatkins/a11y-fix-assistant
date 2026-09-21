@@ -1,0 +1,71 @@
+<!doctype html>
+<!-- Fictional site with planted accessibility problems, used only to demo the tool. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crumb and Copper Bakery</title>
+<style>
+@font-face { font-family: "Fraunces"; src: url("../fonts/fraunces-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 18px; color: #1f3d2f; background: #fff7e6; }
+.top { display: flex; justify-content: space-between; align-items: center; padding: 18px clamp(20px, 5vw, 64px); background: #1f3d2f; color: #fff7e6; }
+.brand { font-size: 26px; font-weight: 800; letter-spacing: -.01em; }
+.top nav { display: flex; align-items: center; gap: 22px; }
+.top a { color: #fff7e6; }
+.top nav img { display: block; width: 26px; height: 26px; }
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; align-items: stretch; background: #f6c945; }
+.hero-copy { align-self: center; padding: clamp(32px, 6vw, 88px) clamp(20px, 5vw, 64px); }
+h1 { margin: 0 0 18px; font-size: clamp(48px, 7vw, 92px); line-height: .96; font-weight: 800; letter-spacing: -.03em; }
+.hero-copy p { max-width: 30em; margin: 0 0 20px; font-size: 21px; line-height: 1.4; }
+.sale { color: #c0922a; font-weight: 600; }
+.icon-button { display: grid; place-items: center; width: 52px; height: 52px; border: 2px solid #1f3d2f; border-radius: 50%; background: #fff7e6; cursor: pointer; }
+.hero > img { display: block; width: 100%; height: 100%; min-height: 420px; object-fit: cover; }
+.divider { display: block; width: min(1100px, 90%); margin: 56px auto 0; }
+.menu { max-width: 1200px; margin: 0 auto; padding: 32px clamp(20px, 5vw, 64px) 72px; }
+h2 { margin: 0 0 28px; font-size: clamp(34px, 4vw, 52px); font-weight: 750; letter-spacing: -.02em; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.card a, .card img { display: block; }
+.card img { width: 100%; border-radius: 6px; }
+.card-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 14px; }
+h3 { margin: 0; font-size: 23px; font-weight: 700; }
+.price { margin: 0; color: #b9a56f; font-size: 20px; }
+.card-note { margin: 4px 0 0; font-size: 16px; line-height: 1.4; }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; padding: 28px clamp(20px, 5vw, 64px); background: #1f3d2f; color: #fff7e6; }
+footer p { margin: 0; }
+footer small { color: #567a66; font-size: 15px; }
+@media (max-width: 760px) { .hero, .grid { grid-template-columns: 1fr; } .hero > img { min-height: 280px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">Crumb and Copper</span>
+  <nav aria-label="Main">
+    <a href="#menu">Menu</a>
+    <a href="#visit">Visit</a>
+    <a href="#photos"><img src="instagram.svg" width="26" height="26"></a>
+  </nav>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Bread baked before sunrise</h1>
+      <p>Small batches, long ferments, and a copper oven we refuse to replace.</p>
+      <p class="sale">Saturday only: half off day-old loaves</p>
+      <button class="icon-button" type="button"><svg width="24" height="24" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17 3 10a4 4 0 0 1 7-4 4 4 0 0 1 7 4z" fill="#d9542b"/></svg></button>
+    </div>
+    <img src="hero.svg" width="640" height="520">
+  </section>
+  <img class="divider" src="divider.svg" width="1200" height="24">
+  <section class="menu">
+    <h2 id="menu">This week's menu</h2>
+    <div class="grid">
+      <article class="card"><a href="#sourdough"><img src="sourdough.svg" width="480" height="360"></a><div class="card-row"><h3>Country sourdough</h3><p class="price">$9</p></div><p class="card-note">Three-day ferment and a dark, crackly crust.</p></article>
+      <article class="card"><a href="#croissant"><img src="croissant.svg" width="480" height="360"></a><div class="card-row"><h3>Butter croissant</h3><p class="price">$5</p></div><p class="card-note">Laminated overnight and gone by ten.</p></article>
+      <article class="card"><a href="#cake"><img src="cake.svg" width="480" height="360"></a><div class="card-row"><h3>Lemon layer cake</h3><p class="price">$34</p></div><p class="card-note">Order two days ahead. Serves ten, or one very sad person.</p></article>
+    </div>
+  </section>
+</main>
+<footer id="visit"><p>218 Oven Lane. Open Tuesday through Sunday, 7 to 2.</p><small>Fictional business, created for a software demo.</small></footer>
+</body>
+</html>

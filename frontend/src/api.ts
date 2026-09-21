@@ -1,6 +1,15 @@
 // Every call to the FastAPI backend lives here, so the screens stay about UI.
 
 import { getClientId } from "./clientId";
+import {
+  demoGetEvaluation,
+  demoGetReviews,
+  demoGetScan,
+  demoGetSuggestion,
+  demoListScans,
+  demoSaveDecision,
+  isDemoMode,
+} from "./demo";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
@@ -34,7 +43,8 @@ export type IssueGroup = {
 };
 
 export type Scan = {
-  id: number;
+  id: number | string;
+  title?: string;
   url: string;
   status: "running" | "complete" | "failed";
   final_url: string | null;
@@ -43,7 +53,7 @@ export type Scan = {
 };
 
 export type ScanSummary = {
-  id: number;
+  id: number | string;
   url: string;
   status: Scan["status"];
   created_at: string;
@@ -130,18 +140,22 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export function startScan(url: string): Promise<Scan> {
+  if (isDemoMode()) throw new Error("Live scanning isn't available in this demo.");
   return request("/api/scans", { method: "POST", body: JSON.stringify({ url }) });
 }
 
 export function listScans(): Promise<ScanSummary[]> {
+  if (isDemoMode()) return demoListScans();
   return request("/api/scans");
 }
 
 export function getScan(scanId: string | number): Promise<Scan> {
+  if (isDemoMode()) return demoGetScan(scanId);
   return request(`/api/scans/${scanId}`);
 }
 
 export function getReviews(scanId: string | number): Promise<ReviewStatus[]> {
+  if (isDemoMode()) return demoGetReviews(scanId);
   return request(`/api/scans/${scanId}/reviews`);
 }
 
@@ -149,6 +163,7 @@ export function getSuggestion(
   scanId: string | number,
   groupKey: string
 ): Promise<Suggestion> {
+  if (isDemoMode()) return demoGetSuggestion(scanId, groupKey);
   return request(`/api/scans/${scanId}/groups/${groupKey}/suggestion`, {
     method: "POST",
   });
@@ -172,6 +187,7 @@ export function saveDecision(
   suggestionId: number,
   decision: DecisionInput
 ): Promise<unknown> {
+  if (isDemoMode()) return demoSaveDecision(suggestionId, decision);
   return request(`/api/suggestions/${suggestionId}/decision`, {
     method: "POST",
     body: JSON.stringify(decision),
@@ -179,5 +195,6 @@ export function saveDecision(
 }
 
 export function getEvaluation(): Promise<Evaluation> {
+  if (isDemoMode()) return demoGetEvaluation();
   return request("/api/evaluation");
 }

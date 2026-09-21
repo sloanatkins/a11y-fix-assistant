@@ -2,7 +2,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { startScan } from "../api";
+import DemoExamples from "../components/DemoExamples";
 import RecentScans from "../components/RecentScans";
+import { isDemoMode } from "../demo";
 
 function NewScanPage() {
   const [url, setUrl] = useState("");
@@ -24,6 +26,8 @@ function NewScanPage() {
       setIsSubmitting(false);
     }
   }
+
+  if (isDemoMode()) return <DemoExamples />;
 
   return (
     <>
