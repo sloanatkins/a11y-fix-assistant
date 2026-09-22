@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install Chromium
+        run: playwright install --with-deps chromium
+      # the tests fake every Groq call, so CI doesn't need an API key
+      - name: Run tests
+        run: python -m pytest tests -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build:demo
+      - name: Check that the demo uses the latest saved results
+        run: diff -r ../demo_data public/demo
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install accessibility check
+        run: |
+          pip install playwright axe-playwright-python
+          playwright install --with-deps chromium
+      # an accessibility tool should pass its own check, including color contrast
+      - name: Check the demo's accessibility in a real browser
+        run: python ../scripts/check_app_accessibility.py dist
