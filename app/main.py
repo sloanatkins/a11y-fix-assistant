@@ -20,6 +20,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from playwright.sync_api import Error as PlaywrightError
+from playwright.sync_api import TimeoutError as PlaywrightTimeout
 from playwright.sync_api import sync_playwright
 
 from app import config, db
@@ -41,7 +43,7 @@ from app.models import (
     TestEditRequest,
     ValidationResult,
 )
-from app.scanner import scan_page, validate_url
+from app.scanner import PageLoadError, scan_page, validate_url
 from app.suggester import suggest_fix
 from app.validator import validate_fix
 
@@ -63,6 +65,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+MAX_RUNNING_SCANS = 2
 
 
 # ── Browser IDs ──
@@ -111,6 +116,25 @@ def run_validation(url: str, issue: AxeIssue, suggestion: FixSuggestion) -> Vali
             browser.close()
 
 
+def friendly_scan_error(error: Exception) -> str:
+    """
+    Turn a scan failure into something a person can act on.
+
+    Returns:
+    --------
+    Plain English message for the results screen
+    """
+    if isinstance(error, PageLoadError):
+        return str(error)
+    if isinstance(error, PlaywrightTimeout):
+        return "The page took longer than 60 seconds to load. Try again, or try another page."
+    if isinstance(error, ValueError):
+        return "The page redirected to an address that can't be scanned."
+    if isinstance(error, PlaywrightError):
+        return "The page couldn't be opened. Check the URL, or the site may be blocking automated browsers."
+    return "The scan stopped because of an unexpected error. Try again."
+
+
 def scan_job(scan_id: int, url: str) -> None:
     """Runs after the response goes out, and saves how the scan turned out."""
     try:
@@ -119,7 +143,9 @@ def scan_job(scan_id: int, url: str) -> None:
         validate_url(scan.final_url)
         db.complete_scan(scan_id, scan.final_url, group_issues(scan.issues))
     except Exception as e:
-        db.fail_scan(scan_id, f"{type(e).__name__}: {e}")
+        # the full error goes in the server log, the message is for the person
+        print(f"Scan {scan_id} failed: {type(e).__name__}: {e}")
+        db.fail_scan(scan_id, friendly_scan_error(e))
 
 
 # ── Scan Routes ──
@@ -134,6 +160,13 @@ def create_scan(
         url = validate_url(request.url)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+    # each scan opens a whole browser, so don't let one person run a pile of them
+    if db.count_running_scans(client_id) >= MAX_RUNNING_SCANS:
+        raise HTTPException(
+            status_code=429,
+            detail=f"You already have {MAX_RUNNING_SCANS} scans running. Wait for one to finish.",
+        )
 
     scan_id = db.create_scan(url, client_id)
     background_tasks.add_task(scan_job, scan_id, url)

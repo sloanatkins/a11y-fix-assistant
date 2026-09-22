@@ -11,10 +11,13 @@ Dependencies:
 
 import pytest
 from fastapi.testclient import TestClient
+from playwright.sync_api import Error as PlaywrightError
+from playwright.sync_api import TimeoutError as PlaywrightTimeout
 
 from app import config, main
 from app.grouping import group_issues
 from app.models import AxeIssue, FixSuggestion, PageScan, ValidationResult
+from app.scanner import PageLoadError
 
 PUBLIC_URL = "https://93.184.216.34/"
 BROWSER_A = {"X-Client-Id": "browser-a-1234567890"}
@@ -115,7 +118,8 @@ def test_failed_scan_reports_the_error(client, monkeypatch):
     monkeypatch.setattr(main, "run_scan", broken)
     scan = start_scan(client)
     assert scan["status"] == "failed"
-    assert "page blew up" in scan["error"]
+    assert "unexpected error" in scan["error"]
+    assert "page blew up" not in scan["error"]
 
 
 def test_redirect_to_private_address_fails(client, monkeypatch):
@@ -390,3 +394,33 @@ def test_final_verdict_is_saved_with_the_decision(client, monkeypatch):
         json={"decision": "edited", "final_html": "<nav>", "final_verdict": "passed"},
     )
     assert saved.json()["final_verdict"] == "passed"
+
+
+@pytest.mark.parametrize(
+    "error, expected",
+    [
+        (PlaywrightTimeout("slow"), "60 seconds"),
+        (PlaywrightError("net::ERR"), "couldn't be opened"),
+        (PageLoadError("The page returned an error (status 404)."), "status 404"),
+    ],
+)
+def test_scan_failures_get_plain_messages(client, monkeypatch, error, expected):
+    def broken(url):
+        raise error
+
+    monkeypatch.setattr(main, "run_scan", broken)
+    assert expected in start_scan(client)["error"]
+
+
+def test_too_many_running_scans_are_refused(client):
+    from app import db
+    db.create_scan(PUBLIC_URL, BROWSER_A["X-Client-Id"])
+    db.create_scan(PUBLIC_URL, BROWSER_A["X-Client-Id"])
+
+    blocked = client.post("/api/scans", json={"url": PUBLIC_URL})
+    assert blocked.status_code == 429
+    assert "already have 2" in blocked.json()["detail"]
+
+    # another browser isn't affected
+    other = client.post("/api/scans", json={"url": PUBLIC_URL}, headers=BROWSER_B)
+    assert other.status_code == 202

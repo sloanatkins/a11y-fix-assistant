@@ -3,11 +3,26 @@ import { Link, useParams } from "react-router-dom";
 import { getReviews, getScan, getSuggestion } from "../api";
 import type { Decision, IssueGroup, Suggestion } from "../api";
 import CodeBlock from "../components/CodeBlock";
+import CopyButton from "../components/CopyButton";
 import DecisionForm from "../components/DecisionForm";
 import IssueClues from "../components/IssueClues";
 import LevelBadge from "../components/LevelBadge";
 import { isDemoMode } from "../demo";
 import { getRuleTip, VERDICT_LABELS } from "../labels";
+
+// some fixes can't be pasted exactly as they are, so say that next to the button
+function copyWarning(html: string): string {
+  if (/="[^"]*\.\.\."/.test(html)) {
+    return "Part of this tag was shortened, so add only the new attribute to your real tag.";
+  }
+  if (html.includes("...")) {
+    return "The ... stands for the existing content. Keep your real content there.";
+  }
+  if (/\[[A-Z][A-Z0-9 _-]+\]/.test(html)) {
+    return "Replace the text in brackets before using this.";
+  }
+  return "";
+}
 
 function ReviewPage() {
   const { scanId = "", groupKey = "" } = useParams();
@@ -165,6 +180,10 @@ function ReviewPage() {
                 compareTo={currentHtml}
               />
             </div>
+            <CopyButton text={suggestion.suggestion.fixed_html} />
+            {copyWarning(suggestion.suggestion.fixed_html) && (
+              <p className="caveat">{copyWarning(suggestion.suggestion.fixed_html)}</p>
+            )}
           </section>
 
           <section aria-labelledby="test-heading">

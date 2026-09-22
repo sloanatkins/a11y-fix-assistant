@@ -155,7 +155,7 @@ def get_element_context(page: Page, target: list, rule_id: str) -> dict[str, str
             // an image in a link has no text beside it, so walk up until we find some
             let ancestor = el.parentElement;
             for (let level = 0; ancestor && level < 4; level++) {
-                const nearby = ancestor.innerText.replace(/\\s+/g, " ").trim();
+                const nearby = ancestor.textContent.replace(/\\s+/g, " ").trim();
                 if (nearby) {
                     context.nearby_text = nearby.slice(0, 200);
                     break;
@@ -196,6 +196,10 @@ def get_contrast_context(node: dict) -> dict[str, str]:
 
 # ── Scanning ──
 
+class PageLoadError(Exception):
+    """The page answered, but with an error instead of real content."""
+
+
 def scan_page(browser: Browser, url: str) -> PageScan:
     """
     Scan one page and keep everything axe finds. Call validate_url first
@@ -207,7 +211,10 @@ def scan_page(browser: Browser, url: str) -> PageScan:
     """
     page = browser.new_page()
     try:
-        page.goto(url, wait_until="load", timeout=60_000)
+        response = page.goto(url, wait_until="load", timeout=60_000)
+        # scanning a 404 page would only tell us about the error page
+        if response is not None and response.status >= 400:
+            raise PageLoadError(f"The page returned an error (status {response.status}).")
         # give any late scripts a second to finish building the page
         page.wait_for_timeout(1_000)
         results = Axe().run(page).response

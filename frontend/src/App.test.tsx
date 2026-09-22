@@ -336,6 +336,47 @@ describe("fixing a bad suggestion", () => {
   });
 });
 
+describe("copy button", () => {
+  const routes = (fixedHtml: string) => ({
+    "GET /api/scans/1": { body: SCAN },
+    "GET /api/scans/1/reviews": {
+      body: [{ group_key: "abc123", suggestion_id: 7, decision: null }],
+    },
+    "POST /api/scans/1/groups/abc123/suggestion": {
+      body: { ...SUGGESTION, suggestion: { ...SUGGESTION.suggestion, fixed_html: fixedHtml } },
+    },
+  });
+
+  it("copies the suggested HTML", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, "writeText");
+    mockApi(routes('<a alt="Home">'));
+    openAt("/scans/1/groups/abc123");
+    await user.click(await screen.findByRole("button", { name: "Copy fix" }));
+    expect(writeText).toHaveBeenCalledWith('<a alt="Home">');
+    expect(await screen.findByText("Copied")).toBeInTheDocument();
+  });
+
+  it("explains when the browser blocks copying", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new Error("blocked"));
+    mockApi(routes('<a alt="Home">'));
+    openAt("/scans/1/groups/abc123");
+    await user.click(await screen.findByRole("button", { name: "Copy fix" }));
+    expect(await screen.findByText(/Couldn't copy/)).toBeInTheDocument();
+  });
+
+  it.each([
+    ['<iframe srcdoc="<html..." title="Map">', /shortened/],
+    ["<nav><ul>...</ul></nav>", /stands for the existing content/],
+    ['<a aria-label="[DESCRIBE THE LINK]">', /Replace the text in brackets/],
+  ])("warns about %s", async (html, warning) => {
+    mockApi(routes(html));
+    openAt("/scans/1/groups/abc123");
+    expect(await screen.findByText(warning)).toBeInTheDocument();
+  });
+});
+
 describe("issue clues", () => {
   it("shows the flagged image and link destination", async () => {
     const group = {

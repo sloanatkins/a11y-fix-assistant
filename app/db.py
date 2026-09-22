@@ -123,6 +123,14 @@ def create_scan(url: str, client_id: str) -> int:
         ).lastrowid
 
 
+def count_running_scans(client_id: str) -> int:
+    with connect() as db:
+        return db.execute(
+            "SELECT COUNT(*) FROM scans WHERE client_id = ? AND status = 'running'",
+            (client_id,),
+        ).fetchone()[0]
+
+
 def scan_belongs_to(scan_id: int, client_id: str) -> bool:
     with connect() as db:
         row = db.execute(

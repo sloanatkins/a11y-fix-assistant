@@ -203,3 +203,21 @@ def test_image_inside_a_link_finds_nearby_text(tmp_path):
         browser.close()
     image = next(i for i in scan.issues if i.rule_id == "image-alt")
     assert "Country sourdough" in image.context["nearby_text"]
+
+
+def test_error_page_stops_the_scan():
+    import threading
+    from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+    from app.scanner import PageLoadError
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), SimpleHTTPRequestHandler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            with pytest.raises(PageLoadError, match="404"):
+                scan_page(browser, f"http://127.0.0.1:{server.server_address[1]}/missing.html")
+            browser.close()
+    finally:
+        server.shutdown()

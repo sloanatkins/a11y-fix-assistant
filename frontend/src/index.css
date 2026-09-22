@@ -1203,3 +1203,14 @@ button.secondary:disabled {
     font-size: 32px;
   }
 }
+
+/* ── Copy button ── */
+
+.copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+  font-weight: 650;
+}
