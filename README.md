@@ -2,7 +2,7 @@
 
 A full-stack tool that scans a web page for accessibility problems, explains them in plain English, drafts HTML fixes, and tests those fixes before a person decides what to do with them.
 
-**[Try the live demo](https://YOUR-VERCEL-URL)** (no account or API key needed)
+**[Try the live demo](https://a11y-fix-assistant.vercel.app/scans/library)** (no account or API key needed)
 
 ![Results for a demo site, with issues grouped by rule and fix level](docs/results.png)
 
